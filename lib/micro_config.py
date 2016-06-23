@@ -38,8 +38,27 @@ def getOrgEnv():
 
 def getAppName():
 	appinfo = get_application_info()
-	json.dump(appinfo, sys.stderr, indent=4)
+	# json.dump(appinfo, sys.stderr, indent=4)
 	print appinfo['uris'][0].replace('.', '-')
+
+def updateSpikeArrest():
+	appinfo = get_application_info()
+	service = find_edgemicro_service(appinfo)
+	if service == None:
+		sys.exit(1)
+	creds = service.get("credentials")
+	updateMicroConfig(creds.get("timeunit", "minute"), creds.get("allow", "30"))
+
+def updateMicroConfig(timeunit, allow):
+	timeunitPattern = re.compile(r"""(timeUnit: )(\w+)""", re.MULTILINE)
+	allowPattern = re.compile(r"""(allow: )(\w+)""", re.MULTILINE)
+	buildpath = os.environ['BUILD_DIR']
+	yamlfile = os.path.join(buildpath,'apigee_edge_micro','apigee-edge-micro-2.0.4','config','default.yaml')
+	data = file(yamlfile,'r').read()
+	data = timeunitPattern.sub(r'\g<1>' + timeunit, data)
+	data = allowPattern.sub(r'\g<1>' + allow, data)
+	file(yamlfile,'w').write(data)
+
 
 vcap_config = None
 log_level = 1

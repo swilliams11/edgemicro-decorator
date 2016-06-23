@@ -31,8 +31,13 @@ export PATH="$BUILD_DIR/.heroku/node/bin":$PATH
 
 ## retrieve confige/org values from app service binding
 export PYTHONPATH="${PYTHONPATH}:$ROOT_DIR/lib"
+#export PYTHONPATH="${PYTHONPATH}:$ROOT_DIR/lib/vendor/pyyaml/lib/yaml"
 MICROCONFIG="$(python -c 'from micro_config import compile; compile()')"
 ORGENV="$(python -c 'from micro_config import getOrgEnv; getOrgEnv()')"
+
+## updateMicroConfig spike arrest setting
+export BUILD_DIR=$BUILD_DIR
+python -c 'from micro_config import updateSpikeArrest; updateSpikeArrest()'
 
 ## configure edge microgateway
 cd $BUILD_DIR/apigee_edge_micro/apigee-edge-micro-2.0.4/cli/
@@ -50,7 +55,7 @@ LOCAL_TARGET="http://localhost:8999"
 mkdir -p $BUILD_DIR/.edgemicro
 cp ~/.edgemicro/* $BUILD_DIR/.edgemicro
 
-echo "DEBUG=* apigee_edge_micro/apigee-edge-micro-2.0.4/cli/edgemicro start $ORGENV -k $MG_KEY -s $MG_SECRET -a $LOCAL_APP -b $LOCAL_PATH -t $LOCAL_TARGET &" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
+echo "apigee_edge_micro/apigee-edge-micro-2.0.4/cli/edgemicro start $ORGENV -k $MG_KEY -s $MG_SECRET -a $LOCAL_APP -b $LOCAL_PATH -t $LOCAL_TARGET &" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
 echo "export PORT=8999" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
 
 ## we could automate Edge tasks here...
