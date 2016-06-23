@@ -36,6 +36,10 @@ def getOrgEnv():
 		sys.exit(1)
 	print '-o %s -e %s' % (service["credentials"]["org"], service["credentials"]["env"])
 
+def getAppName():
+	appinfo = get_application_info()
+	json.dump(appinfo, sys.stderr, indent=4)
+	print appinfo['uris'][0].replace('.', '-')
 
 vcap_config = None
 log_level = 1
@@ -61,6 +65,7 @@ def get_application_info():
 		print >> sys.stderr, "VCAP_APPLICATION must specify application_name"
 		sys.exit(1)
 	appinfo['profile'] = vcap_application.get('space_name', 'default')
+	appinfo['uris'] = vcap_application.get('uris')
 	return appinfo
 
 # Find bound configuration service

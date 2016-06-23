@@ -18,33 +18,32 @@ unzip $ROOT_DIR/lib/apigee-edge-micro.zip -d $BUILD_DIR/apigee_edge_micro > /dev
 ##        may have already done that for us. If that's the case we don't need to
 ##        install node.
 ## TODO: Also todo ... test this with a non-node.js cf app.
-## TODO: OR create own directory to install this node into .. might be needed
-## TEST more.
 
+## node install
 tar xzf $ROOT_DIR/lib/node.tar.gz -C /tmp
 rm -rf $BUILD_DIR/.heroku/node/*
 mv /tmp/node-v4.2.2-linux-x64/* $BUILD_DIR/.heroku/node
 chmod +x $BUILD_DIR/.heroku/node/bin/*
 export PATH="$BUILD_DIR/.heroku/node/bin":$PATH
 
-#install_npm "$npm_engine" "$BUILD_DIR/.heroku/node"
+## TODO: determine if we need to install npm
+## install_npm "$npm_engine" "$BUILD_DIR/.heroku/node"
 
-# echo "which node: `which node`"
-
-# configure edge microgateway
-## these are fake/temporary values
+## retrieve confige/org values from app service binding
 export PYTHONPATH="${PYTHONPATH}:$ROOT_DIR/lib"
 MICROCONFIG="$(python -c 'from micro_config import compile; compile()')"
 ORGENV="$(python -c 'from micro_config import getOrgEnv; getOrgEnv()')"
 
+## configure edge microgateway
 cd $BUILD_DIR/apigee_edge_micro/apigee-edge-micro-2.0.4/cli/
-
 CONFIG_OUT="$(./edgemicro configure $MICROCONFIG)"
 
+## key/secret from config are used in start command
 MG_KEY=$(sed -n 's/key: \(.*\)/\1 /p' <<< "$CONFIG_OUT")
 MG_SECRET=$(sed -n 's/secret: \(.*\)/\1 /p' <<< "$CONFIG_OUT")
 
-LOCAL_APP="nf-pcfdev-local-io"
+## retrieve app name for start command
+LOCAL_APP="$(python -c 'from micro_config import getAppName; getAppName()')"
 LOCAL_PATH="/"
 LOCAL_TARGET="http://localhost:8999"
 
