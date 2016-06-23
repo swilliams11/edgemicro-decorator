@@ -44,13 +44,14 @@ CONFIG_OUT="$(./edgemicro configure $MICROCONFIG)"
 MG_KEY=$(sed -n 's/key: \(.*\)/\1 /p' <<< "$CONFIG_OUT")
 MG_SECRET=$(sed -n 's/secret: \(.*\)/\1 /p' <<< "$CONFIG_OUT")
 
-# echo "export APIGEE_EDGE_MICRO_KEY=$MG_KEY" > $BUILD_DIR/.profile.d/apigee_edge_micro_env.sh
-# echo "export APIGEE_EDGE_MICRO_SECRET=$MG_SECRET" >> $BUILD_DIR/.profile.d/apigee_edge_micro_env.sh
+LOCAL_APP="nf-pcfdev-local-io"
+LOCAL_PATH="/"
+LOCAL_TARGET="http://localhost:8999"
 
 mkdir -p $BUILD_DIR/.edgemicro
 cp ~/.edgemicro/* $BUILD_DIR/.edgemicro
 
-echo "apigee_edge_micro/apigee-edge-micro-2.0.4/cli/edgemicro start $ORGENV -k $MG_KEY -s $MG_SECRET &" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
+echo "DEBUG=* apigee_edge_micro/apigee-edge-micro-2.0.4/cli/edgemicro start $ORGENV -k $MG_KEY -s $MG_SECRET -a $LOCAL_APP -b $LOCAL_PATH -t $LOCAL_TARGET &" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
 echo "export PORT=8999" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
 
 ## we could automate Edge tasks here...
