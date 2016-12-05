@@ -8,9 +8,9 @@ is present in your Cloud Foundry deployment, you can select the 'Microgateway' s
 # Prerequisites
 1. You should have an Apigee Edge account (private or public).
 2. You should [create an Apigee Edgemicro](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#Part2) aware proxy.
-  a. Proxy base path should be /greeting
-  b. Target should be http://localhost:8090/greeting
-  c. You should configure the following paths in your Apigee Edgemicro product: `/greeting`, `/greeting/**`.
+   * Proxy base path should be /greeting
+   * Target should be http://localhost:8090/greeting
+   * You should configure the following paths in your Apigee Edgemicro product: `/greeting`, `/greeting/**`.
 3. You should install [Bosh-lite](https://github.com/cloudfoundry/bosh-lite).
 
 # What You Need To Know
