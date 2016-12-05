@@ -380,14 +380,16 @@ curl -X GET \
 http://rest-service.bosh-lite.com/greeting -v
 ```
 
-# Troubleshooting - If spring_hello does not work, then follow the steps below to delete/recreate it
+# MISC
 
-## 1. Delete spring_hello
+## Troubleshooting - If spring_hello does not work, then follow the steps below to delete/recreate it
+
+### 1. Delete spring_hello
 ```
 cf delete spring_hello
 ```
 
-## 2. Redeploy to CF
+### 2. Redeploy to CF
 ```
 cf push spring_hello
 ```
@@ -403,32 +405,32 @@ name           requested state   instances   memory   disk   urls
 spring_hello   started           1/1         256M     1G     rest-service.bosh-lite.com
 ```
 
-## 3. Deploy to CF Diego
+### 3. Deploy to CF Diego
 ```
 cf enable-diego spring_hello
 ```
 
-## 4. Bind the service - Make sure it is created first (see above).
+### 4. Bind the service - Make sure it is created first (see above).
 ```
 cf bind-service spring_hello edgemicro_service
 ```
 
-## 5. Restage Spring hello
+### 5. Restage Spring hello
 ```
 cf restage spring_hello
 ```
 
-# Tracing a cf push
+## Tracing a cf push
 ```
 CF_TRACE=true cf push spring_hello
 ```
 
-# SSH into Cloud Foundry containers as a root user
+## SSH into Cloud Foundry containers as a root user
 https://discuss.pivotal.io/hc/en-us/articles/220866207-How-to-login-an-app-s-container-as-root-
 
-# Cloud Foundry Logs and Events
+## Cloud Foundry Logs and Events
 
-## logs
+### logs
 Stream events to terminal.
 ```
 cf logs spring_hello
@@ -445,12 +447,12 @@ FAILED
 Timed out waiting for connection to Loggregator (wss://doppler.bosh-lite.com:4443).
 ```
 
-## Events
+### Events
 ```
 cf events spring_hello
 ```
 
-# Tile buildpacks - Need to review
+## Tile buildpacks - Need to review
 This is not necessary but can be used as an added benefit
 https://github.com/cf-platform-eng/tile-generator
 
@@ -460,14 +462,14 @@ This gets you access to the root user.
 sudo su -
 ```
 
-# Deploy Apps With Custom Buildpack
+## Deploy Apps With Custom Buildpack
 https://docs.cloudfoundry.org/buildpacks/custom.html#deploying-with-custom-buildpacks
 
 ```
 cf push my-new-app -b git://github.com/johndoe/my-buildpack.git
 ```
 
-# Deploy Bosh Buildpack to bosh-lite with CF
+## Deploy Bosh Buildpack to bosh-lite with CF
 https://docs.cloudfoundry.org/buildpacks/custom.html
 
 
