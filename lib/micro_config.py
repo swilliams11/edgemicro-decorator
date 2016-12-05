@@ -13,11 +13,14 @@ def main():
 	# 	get_spring_cloud_config(service, appinfo)
 
 def detect():
+	print 'detect called'
 	appinfo = get_application_info()
 	service = find_edgemicro_service(appinfo)
+	# print service
 	if service == None:
 		sys.exit(1)
 	print 'edgemicro-config'
+	sys.exit(0)
 
 def compile():
 	appinfo = get_application_info()
@@ -53,7 +56,7 @@ def updateMicroConfig(timeunit, allow):
 	timeunitPattern = re.compile(r"""(timeUnit: )(\w+)""", re.MULTILINE)
 	allowPattern = re.compile(r"""(allow: )(\w+)""", re.MULTILINE)
 	buildpath = os.environ['BUILD_DIR']
-	yamlfile = os.path.join(buildpath,'apigee_edge_micro','apigee-edge-micro-2.0.4','config','default.yaml')
+	yamlfile = os.path.join(buildpath,'apigee_edge_micro','microgateway-2.1.2','config','default.yaml')
 	data = file(yamlfile,'r').read()
 	data = timeunitPattern.sub(r'\g<1>' + timeunit, data)
 	data = allowPattern.sub(r'\g<1>' + allow, data)

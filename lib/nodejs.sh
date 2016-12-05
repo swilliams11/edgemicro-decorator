@@ -28,9 +28,12 @@ detect_memory() {
   esac
 }
 
-export PATH="$HOME/.heroku/node/bin:$PATH:$HOME/bin:$HOME/node_modules/.bin"
-export NODE_HOME="$HOME/.heroku/node"
+echo "nodejs.sh script is executing!"
+export PATH="$HOME/node/bin:$PATH:$HOME/bin:$HOME/node_modules/.bin"
+echo "PATH is $PATH"
+export NODE_HOME="$HOME/node"
 export NODE_ENV=${NODE_ENV:-production}
+echo "NODE_HOME is $NODE_HOME"
 
 calculate_concurrency
 
@@ -41,3 +44,6 @@ export WEB_CONCURRENCY=$WEB_CONCURRENCY
 if [ "$LOG_CONCURRENCY" = "true" ]; then
   log_concurrency
 fi
+
+#echo "starting edge micro"
+#echo "edgemicro start -o seanwilliams -e test -k $(cat $HOME/app/key.txt) -s $(cat $HOME/app/secret.txt) &"

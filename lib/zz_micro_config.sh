@@ -15,3 +15,4 @@
 # done <<< "`python ~/apigee_edge_micro/micro_config.py`"
 
 ### cf start or restart executes this code
+echo "zz_micro_config.sh script is executing!"
