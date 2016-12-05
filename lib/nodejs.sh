@@ -44,6 +44,3 @@ export WEB_CONCURRENCY=$WEB_CONCURRENCY
 if [ "$LOG_CONCURRENCY" = "true" ]; then
   log_concurrency
 fi
-
-#echo "starting edge micro"
-#echo "edgemicro start -o seanwilliams -e test -k $(cat $HOME/app/key.txt) -s $(cat $HOME/app/secret.txt) &"
