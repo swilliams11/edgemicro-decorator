@@ -47,7 +47,7 @@ Explicit instructions to deploy CF and Diego to Bosh-lite are found here.
 https://github.com/cloudfoundry/diego-release/tree/develop/examples/bosh-lite
 
 #### Postgres
-Step 7 in the above link prompts you to select between MySQL and Postgres.  I tried the MySQL option but that generated an error so I decided to use the Postgres option instead.  Need to go back and determine why this option did not work. I think it might require the use of another Github.  
+Step 7 in the above link prompts you to select between MySQL and Postgres.  I tried the MySQL option but that generated an error so I decided to use the Postgres option instead.  Need to go back and determine why this option did not work. I think it might require the use of another Github repository to install the MySQL service within CF.  
 
 
 ## 5. Add Routes
@@ -98,6 +98,11 @@ OK
 TIP: Use 'cf target -o "orgname" -s "myspace"' to target new space
 ```
 
+Set the target to the new space.
+```
+cf target -o "orgname" -s "myspace"
+```
+
 List all orgs
 ```
 cf orgs
@@ -131,7 +136,7 @@ git clone https://github.com/spring-guides/gs-rest-service.git
 You can either create a Procfile or update the Manifest.  The preferred approach is to update the manifest as shown below.   
 
 
-This application will be deployed to CF DEA architecture, so the meta-buildpack will not execute at this point and the service is directly available from `http://rest-service.bosh-lite.com/greeting`.
+This application will be deployed to CF DEA architecture, so the meta-buildpack will not execute at this point and the service is directly available from `http://rest-service.bosh-lite.com/greeting`.  If you want the meta-buildpack to execute, then the application must be deployed to the Diego Architecture.  
 
 ### Update the manifest
 Update the manifest file as shown below.  When the app starts, CF will assign `rest-service.bosh-lite.com` as the route to this service.  The `path` property tells CF where the application code is located.  The is also the directory where CF will run the buildpack detection process to determine which buildpack to apply to start the service.
@@ -150,7 +155,7 @@ applications:
 ```
 
 ### Create a Procfile
-Alternative approach to updating the manifest.
+Alternative approach to updating the manifest. Skip this step and use the Manifest approach above.  
 ```
 cd gs-rest-service/complete
 
@@ -167,7 +172,7 @@ https://docs.cloudfoundry.org/devguide/services/user-provided.html
 
 The following command allows you to configure a [service](https://docs.cloudfoundry.org/devguide/services/user-provided.html) in CF to store the Microgateway configuration (org/env, org credentials) separate from the Spring application.
 
-You must modify the service attributes below before you execute it.
+You must modify the service attributes below before you execute the `cf cups` command.
 * org - Apigee organization
 * env - Apigee environment
 * user - Apigee Org Administrator username
@@ -258,10 +263,10 @@ System-Provided:
 ```
 
 
-## 11. Install Diego in CF
+## 11. Install Diego Enabler Plugin
 
 ### Deploy to diego-release CF 2nd Attempt - WORKS
-This section discusses the second attempt to deploy to Diego architecture. I followed the instructions listed here.
+This section discusses the second attempt to deploy the Diego architecture in CF. I followed the instructions listed here.
 https://github.com/cloudfoundry/diego-design-notes/blob/master/migrating-to-diego.md
 
 Install Diego enabler.
@@ -321,7 +326,7 @@ cf push spring_hello
 ```
 
 ## 12. Deploy to CF and enable Diego
-Make sure your CF target is set and then push the spring_hello application.  At this point when you deploy to CF, the application is deployed to the DEA architecture.  Therefore, you must enable diego for the app for the app to run on the diego architecture.  If you don't enable it then the meta-buildpack does not get applied (need to troubleshoot why).
+Make sure your CF target is set (completed in step 7) and then push the spring_hello application.  At this point when you deploy to CF, the application is deployed to the DEA (Droplet Execution Agent) architecture.  Therefore, you must enable Diego for the app to run on the diego architecture.  If you don't enable it then the meta-buildpack does not get applied (need to troubleshoot why).
 
 ```
 cf target -o "orgname" -s "myspace"
@@ -332,15 +337,15 @@ cf start spring_hello
 ```
 
 Overview of process execution when you execute the `cf start spring_hello` command.
-* CF starts a staging container to build the droplet (container execution).
+* CF starts a staging container to build the droplet (container that runs the app).
 * Meta-buildback executes first
-* It passes control to the buildpacks to detect which buildpack should execute.
+* It passes control to the buildpacks process to detect which buildpack should execute the app.
 * The appropriate buildback executes, in this case Java.
 * Control is passed back to meta-buildpack
-* Meta-buildpack calls each decorator's detect script. In this case it calls the edgemicor-decorator.
-* The decorator's detect script determines if decorator will execute it's compile step.
-* The edgemicor-decorator executes the compile script, which in turns initializes and configures microgateway. It also copies a shell script into the `profile.d` directory which executes when the container starts.  The shell script starts Microgateway and listens on port 8080.
-* Droplet is saved in the blob store.
+* Meta-buildpack calls each decorator's decorate script. In this case it calls the edgemicro-decorator.
+* The decorator's detect script determines if it should the decorator's compile step.
+* The edgemicro-decorator executes the compile script, which in turn initializes and configures Edgemicro. It also copies a shell script into the `profile.d` directory which executes when the container starts.  The shell script starts Edgemicro and listens on port 8080.
+* Droplet is saved in the CF blob store.
 * Staging container is destroyed.
 * CF creates a new container which starts Edgemicro and then starts the Spring application.
 
@@ -350,7 +355,9 @@ cf app spring_hello
 ```
 
 ## 14. Test Service
-If you copy the URL into your browser you should receive an error from the Microgateway stating that you are missing the authorization header.  
+If you copy the URL into your browser you should receive an error from Edgemicro stating that you are missing the authorization header.  
+
+Paste the link below in your browser.
 ```
 http://rest-service.bosh-lite.com/greeting
 ```
@@ -363,12 +370,12 @@ curl http://rest-service.bosh-lite.com/greeting
 In order to send a valid request, you must obtain a valid access token first.
 
 ### a. Request JWT
-Request an JWT from your OAuth proxy deployed to Edge.  Make sure to include the client_id and secret from your Apigee product.
+Request a JWT from your OAuth proxy deployed to Edge.  This OAuth proxy is configured automatically when the edgemicro-decorator executes the `init` step.  Make sure to include the client_id and secret from your Apigee product in the curl command below.
 ```
 curl -X POST -H "Content-type: application/json" http://org-env.apigee.net/edgemicro-auth/token -d '{"client_id":"client_id","client_secret":"client_secret","grant_type":"client_credentials"}' -v
 ```
 
-Response:
+Mocked Response (actual JWT is much longer):
 ```
 { token: 'qOoFoQ4hFQ' }
 ```
@@ -377,8 +384,62 @@ Response:
 ```
 curl -X GET \
 -H "Authorization: Bearer qOoFoQ4hFQ" \
-http://rest-service.bosh-lite.com/greeting -v
+http://rest-service.bosh-lite.com/greeting/ -v
 ```
+
+# Scale Up/Down
+## Scale Up
+Scale the number of instances up by entering the `-i` command.  The cloud controller listens for scaling requests and passes that to the BBS (Bulletin Board System), which forwards the request to the Diego Brain, which auctions the jobs to Cells.  The Diego Brain monitors actual LRP (Long Running Processes) vs the desired LRPs and maintains the consistency between the two.
+
+Execute the following command to scale the number of instances up.
+```
+cf scale spring_hello -i 3
+```
+
+Then execute the following command to see that the CF completed the request.
+```
+cf app spring_hello
+```
+
+The result will display the number of running instances.  
+```
+Showing health and status for app spring_hello in org apigee / space myspace as admin...
+OK
+
+requested state: started
+instances: 3/3
+usage: 256M x 3 instances
+urls: rest-service.bosh-lite.com
+last uploaded: Fri Dec 2 22:35:21 UTC 2016
+stack: cflinuxfs2
+buildpack: java-buildpack=v3.10-https://github.com/cloudfoundry/java-buildpack.git#193d6b7 java-main open-jdk-like-jre=1.8.0_111 open-jdk-like-memory-calculator=2.0.2_RELEASE spr... (with decorator edgemicro-decorator DECORATE called!
+detect called
+edgemicro-config)
+
+     state     since                    cpu    memory      disk      details
+#0   running   2016-12-02 04:36:50 PM   0.0%   0 of 256M   0 of 1G
+#1   running   2016-12-06 08:16:34 AM   0.0%   0 of 256M   0 of 1G
+#2   running   2016-12-06 08:16:38 AM   0.0%   0 of 256M   0 of 1G
+```
+
+## Scale Down
+Scale down the number of instances by executing the command below.
+
+```
+cf scale spring_hello -i 1
+```
+
+Execute the `cf app` command to see the number of instances reduced back to 1.
+```
+cf app spring_hello
+```
+
+### SSH into an instance
+SSH into a running CF container by including the container index number with the `-i` parameter.
+```
+cf ssh spring_hello -i 1
+```
+
 
 # MISC
 
@@ -405,12 +466,13 @@ name           requested state   instances   memory   disk   urls
 spring_hello   started           1/1         256M     1G     rest-service.bosh-lite.com
 ```
 
-### 3. Deploy to CF Diego
+### 3. Deploy to CF Diego Architecture
 ```
 cf enable-diego spring_hello
 ```
 
-### 4. Bind the service - Make sure it is created first (see above).
+### 4. Bind the service
+Make sure that it was [created](#create-the-new-service).
 ```
 cf bind-service spring_hello edgemicro_service
 ```
@@ -469,7 +531,7 @@ https://docs.cloudfoundry.org/buildpacks/custom.html#deploying-with-custom-build
 cf push my-new-app -b git://github.com/johndoe/my-buildpack.git
 ```
 
-## Deploy Bosh Buildpack to bosh-lite with CF
+## Deploy Custom Buildpack to bosh-lite with CF
 https://docs.cloudfoundry.org/buildpacks/custom.html
 
 
@@ -478,7 +540,11 @@ Execute the following line:
 ./upload
 ```
 
+# Immediate Action Items
+1. Document additional space requirements for including Edgemicro in CF App container.
+2. Document latency between first POC (EM running in separate containers) vs EM running in same container.    
+
 # Open Items
 1. Current implementation uses Microgateway v2.1.2; however, 3.1.1 has just been released, so I need to switch to this version.  
-2. Need to change the code so that you can configure which version of Microgateway you want to use; however, the default selection should be the most current Microgateway.
+2. Need to change the code so that you can configure which version of Edgemicro you want to use; however, the default selection should be the most current Edgemicro.
 3. Clean up the configure script.
