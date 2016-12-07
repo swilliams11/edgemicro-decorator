@@ -6,11 +6,11 @@ When this decorator and the [meta-buildpack](https://github.com/guidowb/meta-bui
 is present in your Cloud Foundry deployment, you can select the 'Microgateway' service plan from the Apigee Edge service broker. With that service plan you can automatically add Apigee API Management via the Microgateway.
 
 # Summary
-The reason we developed an [Edge Microgateway](http://docs.apigee.com/microgateway/latest/overview-edge-microgateway) decorator is to allow customers running Cloud Foundry to protect their microservices with Apigee, which automatically gets you OAuth 2.0, rate limiting with spike arrests and quotas, and analytics to monitor your run-time traffic.  Edge Microgateway also reduces the latency between The Edge Microgateway decorator will run inside the same container that executes the App.  The following documentation describes how test this decorator in a Bosh-lite instance.
+The reason we developed an [Edge Microgateway](http://docs.apigee.com/microgateway/latest/overview-edge-microgateway) decorator is to allow customers running Cloud Foundry to protect their microservices with Apigee, which automatically gets you OAuth 2.0, rate limiting with spike arrests and quotas, and analytics to monitor your run-time traffic.  Edge Microgateway also reduces the latency between The Edge Microgateway decorator will run inside the same container that executes the App.  The following documentation describes how to test this decorator in a Bosh-lite instance protecting a sample Spring Boot application.
 
 Please note the following:
 * Edge Microgateway is listening on port 8080
-* [Springboot sample application](https://github.com/spring-guides/gs-rest-service) is listening on port 8090 and you can view the [docs here](https://spring.io/guides/gs/rest-service/).
+* [Spring Boot sample application](https://github.com/spring-guides/gs-rest-service) is listening on port 8090 and you can view the [docs here](https://spring.io/guides/gs/rest-service/).
 * Cloud Foundry creates an HTTP route to the app based on the Manifest.yml file located in the spring_hello App
 * Apps that use the HTTP route are required to listed on port 8080 (will validate)
 
@@ -21,7 +21,7 @@ This decorator was tested with a sample Spring Boot application.
 * Additional tests will be added
 
 ## What is the additional space required for my container?
-Edge Microgateway is a Node.js application that uses other node libraries as well. Therefore, the total additional space required is the the total space for the Node.js runtime, the core Microgateway and all of the required node modules.  
+Edge Microgateway is a Node.js application that includes other node libraries as well. Therefore, the total additional space required is the total space for the Node.js runtime, the core Microgateway and all of the required node modules.  
 * Node.js v6.9.1-linux-x64 - ~48MB
 * Edge Microgateway v2.1.2 (including node_modules) - ~103MB
 
@@ -34,7 +34,7 @@ There are several files that are include:
   * node-v6.9.1-linux-x64.tar.xz - Node.js runtime
   * node-v6.9.1.tar.gz - Node.js runtime (will be removed)
   * nodejs.sh - copied to `profile.d` directory during the compile phase; sets environment variables
-  * zz_micro_config.sh - copied to `profile.d` directory and it set environment variables and starts Microgateway before the CF starts the actual application.  
+  * zz_micro_config.sh - copied to `profile.d` directory; it sets environment variables and starts Microgateway before CF starts the actual application.  
 * `bin` directory
   * compile - script that installs Node.js, and Microgateway; initializes and configures Microgateway.
   * decorate - determines if this decorator should run
@@ -191,13 +191,13 @@ cd meta-buildpack
 ./upload
 ```
 
-To view the buildpacks that are loaded in CF.
+Verify that the meta-buildpack was uploaded to CF.
 ```
 cf buildpacks
 ```
 
 ## 10. Clone a Sample Spring Boot application
-This is a sample Spring Boot application that I used to test the Edge Microgateway-decorator. Follow the instructions listed in the Github README file to build/deploy the application.  
+This is a sample Spring Boot application that I used to test the edgemicro-decorator. Follow the instructions listed in the Github README file to build/deploy the Spring Boot application.  
 
 ```
 git clone https://github.com/spring-guides/gs-rest-service.git
@@ -206,10 +206,10 @@ git clone https://github.com/spring-guides/gs-rest-service.git
 You can either create a Procfile or update the Manifest.  The preferred approach is to update the manifest as shown below.   
 
 
-This application will be deployed to CF DEA architecture, so the meta-buildpack will not execute at this point and the service is directly available from `http://rest-service.bosh-lite.com/greeting`.  If you want the meta-buildpack to execute, then the application must be deployed to the Diego Architecture.  
+This application will be deployed to CF's DEA architecture, so the meta-buildpack will not execute at this point and the service is directly available from `http://rest-service.bosh-lite.com/greeting`.  If you want the meta-buildpack to execute, then the application must be deployed to the Diego Architecture.  
 
 ### Update the manifest
-Update the manifest file as shown below.  When the app starts, CF will assign `rest-service.bosh-lite.com` as the route to this service.  The `path` property tells CF where the application code is located.  The is also the directory where CF will run the buildpack detection process to determine which buildpack to apply to start the service.
+Update the manifest file as shown below; the file is located in `gs-rest-service/complete`.  When the app starts, CF will assign `rest-service.bosh-lite.com` as the route to this service.  The `path` property tells CF where the application code is located.  The is also the directory where CF will run the buildpack detection process to determine which buildpack to apply to start the service.
 
 ```
 ---
