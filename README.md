@@ -5,12 +5,52 @@ This is a [decorator](https://github.com/guidowb/meta-buildpack/blob/master/READ
 When this decorator and the [meta-buildpack](https://github.com/guidowb/meta-buildpack))
 is present in your Cloud Foundry deployment, you can select the 'Microgateway' service plan from the Apigee Edge service broker. With that service plan you can automatically add Apigee API Management via the Microgateway.
 
+# Summary
+The reason we developed an [Edge Microgateway](http://docs.apigee.com/microgateway/latest/overview-edge-microgateway) decorator is to allow customers running Cloud Foundry to protect their microservices with Apigee, which automatically gets you OAuth 2.0, rate limiting with spike arrests and quotas, and analytics to monitor your run-time traffic.  Edge Microgateway also reduces the latency between The Edge Microgateway decorator will run inside the same container that executes the App.  The following documentation describes how test this decorator in a Bosh-lite instance.
+
+Please note the following:
+* Edge Microgateway is listening on port 8080
+* [Springboot sample application](https://github.com/spring-guides/gs-rest-service) is listening on port 8090 and you can view the [docs here](https://spring.io/guides/gs/rest-service/).
+* Cloud Foundry creates an HTTP route to the app based on the Manifest.yml file located in the spring_hello App
+* Apps that use the HTTP route are required to listed on port 8080 (will validate)
+
+
+## Testing
+This decorator was tested with a sample Spring Boot application.
+
+* Additional tests will be added
+
+## What is the additional space required for my container?
+Edge Microgateway is a Node.js application that uses other node libraries as well. Therefore, the total additional space required is the the total space for the Node.js runtime, the core Microgateway and all of the required node modules.  
+* Node.js v6.9.1-linux-x64 - ~48MB
+* Edge Microgateway v2.1.2 (including node_modules) - ~103MB
+
+## What files are included in the edgemicro-decorator?
+There are several files that are include:
+* `lib` directory
+  * apigee-edge-micro.zip - older version of microgateway 1.0 (will be removed)
+  * microgateway-2.1.2.zip - includes all the required node_modules for Microgateway to run
+  * microgateway-2.1.2min.zip - only includes the core Microgateway.  This requires that `npm install` is executed to install the required node modules.
+  * node-v6.9.1-linux-x64.tar.xz - Node.js runtime
+  * node-v6.9.1.tar.gz - Node.js runtime (will be removed)
+  * nodejs.sh - copied to `profile.d` directory during the compile phase; sets environment variables
+  * zz_micro_config.sh - copied to `profile.d` directory and it set environment variables and starts Microgateway before the CF starts the actual application.  
+* `bin` directory
+  * compile - script that installs Node.js, and Microgateway; initializes and configures Microgateway.
+  * decorate - determines if this decorator should run
+  * detect - always returns false
+* `upload` - uploads this decorator to CF
+
+## What is the additional latency to proxy requests via Microgateway running on the same VM as my app?
+* TODO gatling test results here
+
+
 # Prerequisites
 1. You should have an Apigee Edge account (private or public).
-2. You should [create an Apigee Edgemicro](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#Part2) aware proxy.
+2. You should [create an Apigee Edge Microgateway](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#Part2) aware proxy.
    * Proxy base path should be /greeting
    * Target should be http://localhost:8090/greeting
-   * You should configure the following paths in your Apigee Edgemicro product: `/greeting`, `/greeting/**`.
+   * You should configure the following paths in your Apigee Edge Microgateway product: `/greeting`, `/greeting/**`.
 3. You should install [Bosh-lite](https://github.com/cloudfoundry/bosh-lite).
 
 # What You Need To Know
@@ -108,8 +148,39 @@ List all orgs
 cf orgs
 ```
 
+## 8. Upload edgemicro-decorator
+Clone this repository
+```
+git clone https://github.com/swilliams11/edgemicro-decorator.git
+```
 
-## 8. Upload meta-buildpack
+Upload the decorator to CF.
+```
+cd edgemicro-decorator
+./upload
+```
+
+Verify the decorator was uploaded.
+```
+cf buildpacks
+```
+
+Response:
+```
+buildpack               position   enabled   locked   filename
+staticfile_buildpack    1          true      false    staticfile_buildpack-cached-v1.3.12.zip
+java_buildpack          2          true      false    java-buildpack-v3.10.zip
+ruby_buildpack          3          true      false    ruby_buildpack-cached-v1.6.27.zip
+nodejs_buildpack        4          true      false    nodejs_buildpack-cached-v1.5.22.zip
+go_buildpack            5          true      false    go_buildpack-cached-v1.7.14.zip
+python_buildpack        6          true      false    python_buildpack-cached-v1.5.11.zip
+php_buildpack           7          true      false    php_buildpack-cached-v4.3.21.zip
+binary_buildpack        8          true      false    binary_buildpack-cached-v1.0.5.zip
+dotnet_core_buildpack   9          true      false    dotnet-core_buildpack-cached-v1.0.4.zip
+edgemicro_decorator     10         true      false    edgemicro_decorator.zip
+```
+
+## 9. Upload meta-buildpack
 You must upload the meta-buildpack to CF for this to work.
 https://github.com/cf-platform-eng/meta-buildpacks
 
@@ -120,14 +191,13 @@ cd meta-buildpack
 ./upload
 ```
 
-
 To view the buildpacks that are loaded in CF.
 ```
 cf buildpacks
 ```
 
-## 9. Clone a Sample Spring Boot application
-This is a sample Spring Boot application that I used to test the edgemicro-decorator. Follow the instructions listed in the Github README file to build/deploy the application.  
+## 10. Clone a Sample Spring Boot application
+This is a sample Spring Boot application that I used to test the Edge Microgateway-decorator. Follow the instructions listed in the Github README file to build/deploy the application.  
 
 ```
 git clone https://github.com/spring-guides/gs-rest-service.git
@@ -167,7 +237,7 @@ Enter the following command into the Procfile.
 web: java -jar build/libs/gs-rest-service-0.1.0.jar --server.port=8090
 ```
 
-## 10.a Configure a Service binding
+## 11.a Configure a Service binding
 https://docs.cloudfoundry.org/devguide/services/user-provided.html
 
 The following command allows you to configure a [service](https://docs.cloudfoundry.org/devguide/services/user-provided.html) in CF to store the Microgateway configuration (org/env, org credentials) separate from the Spring application.
@@ -180,31 +250,31 @@ You must modify the service attributes below before you execute the `cf cups` co
 
 ### Create the new service
 ```
-cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "tags": ["edgemicro"]}'
+cf cups Edge Microgateway_service -p '{"application_name":"Edge Microgateway_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "tags": ["Edge Microgateway"]}'
 ```
 
 ### Update an existing service
 You only have to execute this command if you want to update an existing service.  
 ```
-cf uups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "tags": ["edgemicro"]}'
+cf uups Edge Microgateway_service -p '{"application_name":"Edge Microgateway_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "tags": ["Edge Microgateway"]}'
 ```
 
 ### View all services/View existing service
 ```
 cf services
-cf service edgemicro_service
+cf service Edge Microgateway_service
 ```
 
-## 10.b Bind a Service to an App
-You must bind the service to the spring_hello app so that the Edgemicro configuration values are available to edgemicro_decorator during startup.  
+## 11.b Bind a Service to an App
+You must bind the service to the spring_hello app so that the Edge Microgateway configuration values are available to Edge Microgateway_decorator during startup.  
 ```
-cf bind-service spring_hello edgemicro_service
+cf bind-service spring_hello Edge Microgateway_service
 ```
 
 Result:
 
 ```
-Binding service edgemicro_service to app spring_hello in org orgname / space myspace as admin...
+Binding service Edge Microgateway_service to app spring_hello in org orgname / space myspace as admin...
 OK
 TIP: Use 'cf restage spring_hello' to ensure your env variable changes take effect
 ```
@@ -224,10 +294,10 @@ System-Provided:
   "user-provided": [
    {
     "credentials": {
-     "application_name": "edgemicro_service"
+     "application_name": "Edge Microgateway_service"
     },
     "label": "user-provided",
-    "name": "edgemicro_service",
+    "name": "Edge Microgateway_service",
     "syslog_drain_url": "",
     "tags": [],
     "volume_mounts": []
@@ -263,7 +333,7 @@ System-Provided:
 ```
 
 
-## 11. Install Diego Enabler Plugin
+## 12. Install Diego Enabler Plugin
 
 ### Deploy to diego-release CF 2nd Attempt - WORKS
 This section discusses the second attempt to deploy the Diego architecture in CF. I followed the instructions listed here.
@@ -274,9 +344,9 @@ Install Diego enabler.
 cf install-plugin Diego-Enabler -r CF-Community
 ```
 
-#### Make sure to bind the Edgemicro Service to spring_hello app
+#### Make sure to bind the Edge Microgateway Service to spring_hello app
 ```
-cf bind-service spring_hello edgemicro_service
+cf bind-service spring_hello Edge Microgateway_service
 ```
 
 ### Deploy to diego-release CF 1st Attempt
@@ -325,7 +395,7 @@ cf target -o "apigee" -s "myspace"
 cf push spring_hello
 ```
 
-## 12. Deploy to CF and enable Diego
+## 13. Deploy to CF and enable Diego
 Make sure your CF target is set (completed in step 7) and then push the spring_hello application.  At this point when you deploy to CF, the application is deployed to the DEA (Droplet Execution Agent) architecture.  Therefore, you must enable Diego for the app to run on the diego architecture.  If you don't enable it then the meta-buildpack does not get applied (need to troubleshoot why).
 
 ```
@@ -342,12 +412,12 @@ Overview of process execution when you execute the `cf start spring_hello` comma
 * It passes control to the buildpacks process to detect which buildpack should execute the app.
 * The appropriate buildback executes, in this case Java.
 * Control is passed back to meta-buildpack
-* Meta-buildpack calls each decorator's decorate script. In this case it calls the edgemicro-decorator.
+* Meta-buildpack calls each decorator's decorate script. In this case it calls the Edge Microgateway-decorator.
 * The decorator's detect script determines if it should the decorator's compile step.
-* The edgemicro-decorator executes the compile script, which in turn initializes and configures Edgemicro. It also copies a shell script into the `profile.d` directory which executes when the container starts.  The shell script starts Edgemicro and listens on port 8080.
+* The Edge Microgateway-decorator executes the compile script, which in turn initializes and configures Edge Microgateway. It also copies a shell script into the `profile.d` directory which executes when the container starts.  The shell script starts Edge Microgateway and listens on port 8080.
 * Droplet is saved in the CF blob store.
 * Staging container is destroyed.
-* CF creates a new container which starts Edgemicro and then starts the Spring application.
+* CF creates a new container which starts Edge Microgateway and then starts the Spring application.
 
 ## 13.b View the status of the app
 ```
@@ -355,7 +425,7 @@ cf app spring_hello
 ```
 
 ## 14. Test Service
-If you copy the URL into your browser you should receive an error from Edgemicro stating that you are missing the authorization header.  
+If you copy the URL into your browser you should receive an error from Edge Microgateway stating that you are missing the authorization header.  
 
 Paste the link below in your browser.
 ```
@@ -366,13 +436,13 @@ OR
 curl http://rest-service.bosh-lite.com/greeting
 ```
 
-## 15. Edgemicro Test
+## 15. Edge Microgateway Test
 In order to send a valid request, you must obtain a valid access token first.
 
 ### a. Request JWT
-Request a JWT from your OAuth proxy deployed to Edge.  This OAuth proxy is configured automatically when the edgemicro-decorator executes the `init` step.  Make sure to include the client_id and secret from your Apigee product in the curl command below.
+Request a JWT from your OAuth proxy deployed to Edge.  This OAuth proxy is configured automatically when the Edge Microgateway-decorator executes the `init` step.  Make sure to include the client_id and secret from your Apigee product in the curl command below.
 ```
-curl -X POST -H "Content-type: application/json" http://org-env.apigee.net/edgemicro-auth/token -d '{"client_id":"client_id","client_secret":"client_secret","grant_type":"client_credentials"}' -v
+curl -X POST -H "Content-type: application/json" http://org-env.apigee.net/Edge Microgateway-auth/token -d '{"client_id":"client_id","client_secret":"client_secret","grant_type":"client_credentials"}' -v
 ```
 
 Mocked Response (actual JWT is much longer):
@@ -389,7 +459,7 @@ http://rest-service.bosh-lite.com/greeting/ -v
 
 # Scale Up/Down
 ## Scale Up
-Scale the number of instances up by entering the `-i` command.  The cloud controller listens for scaling requests and passes that to the BBS (Bulletin Board System), which forwards the request to the Diego Brain, which auctions the jobs to Cells.  The Diego Brain monitors actual LRP (Long Running Processes) vs the desired LRPs and maintains the consistency between the two.
+Scale the number of instances up by entering the `-i` command.  The cloud controller listens for scaling requests and passes that to the BBS (Bulletin Board System), which forwards the request to the Diego Brain, which auctions the jobs to Cells.  The Diego Brain monitors actual LRPs (Long Running Processes) vs the desired LRPs and maintains consistency between the two.
 
 Execute the following command to scale the number of instances up.
 ```
@@ -412,9 +482,9 @@ usage: 256M x 3 instances
 urls: rest-service.bosh-lite.com
 last uploaded: Fri Dec 2 22:35:21 UTC 2016
 stack: cflinuxfs2
-buildpack: java-buildpack=v3.10-https://github.com/cloudfoundry/java-buildpack.git#193d6b7 java-main open-jdk-like-jre=1.8.0_111 open-jdk-like-memory-calculator=2.0.2_RELEASE spr... (with decorator edgemicro-decorator DECORATE called!
+buildpack: java-buildpack=v3.10-https://github.com/cloudfoundry/java-buildpack.git#193d6b7 java-main open-jdk-like-jre=1.8.0_111 open-jdk-like-memory-calculator=2.0.2_RELEASE spr... (with decorator Edge Microgateway-decorator DECORATE called!
 detect called
-edgemicro-config)
+Edge Microgateway-config)
 
      state     since                    cpu    memory      disk      details
 #0   running   2016-12-02 04:36:50 PM   0.0%   0 of 256M   0 of 1G
@@ -474,7 +544,7 @@ cf enable-diego spring_hello
 ### 4. Bind the service
 Make sure that it was [created](#create-the-new-service).
 ```
-cf bind-service spring_hello edgemicro_service
+cf bind-service spring_hello Edge Microgateway_service
 ```
 
 ### 5. Restage Spring hello
@@ -541,10 +611,10 @@ Execute the following line:
 ```
 
 # Immediate Action Items
-1. Document additional space requirements for including Edgemicro in CF App container.
+1. Document additional space requirements for including Edge Microgateway in CF App container.
 2. Document latency between first POC (EM running in separate containers) vs EM running in same container.    
 
 # Open Items
 1. Current implementation uses Microgateway v2.1.2; however, 3.1.1 has just been released, so I need to switch to this version.  
-2. Need to change the code so that you can configure which version of Edgemicro you want to use; however, the default selection should be the most current Edgemicro.
+2. Need to change the code so that you can configure which version of Edge Microgateway you want to use; however, the default selection should be the most current Edge Microgateway.
 3. Clean up the configure script.
