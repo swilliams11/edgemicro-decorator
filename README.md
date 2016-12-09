@@ -37,7 +37,7 @@ There are several files that are include:
 * `upload` - uploads this decorator to CF
 
 ## What is the additional latency to proxy requests via Microgateway running on the same VM as my app?
-* TODO gatling test results here
+* See the [Gatling tests](#gatling-test) below
 
 
 # Prerequisites
@@ -513,7 +513,11 @@ This decorator was tested with a sample Spring Boot application.
 ## Gatling tests
 [Gatling](http://gatling.io/) tests are included in the `gatling` directory.  
 
+The screen shot below is a partial view of the Gatling tests against a Bosh-lite instance running Cloud Foundry Diego architecture with a single container running Edge Microgateway and a Spring Boot Application.  
+
+* one concurrent user for 30 seconds at a constant rate
 ![Performance Test Results](/gatling/screenshots/gatlingtestresults.png?raw=true "Gatling Test Results")
+
 
 ### How to execute the Gatling tests?
 1. Must have an Edge account with an Edge product defined (see prerequisites above)
