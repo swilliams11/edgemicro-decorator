@@ -37,7 +37,7 @@ There are several files that are include:
 * `upload` - uploads this decorator to CF
 
 ## What is the additional latency to proxy requests via Microgateway running on the same VM as my app?
-* See the [Gatling tests](#gatling-test) below
+* See the [Gatling tests](#gatling-tests) below
 
 
 # Prerequisites
