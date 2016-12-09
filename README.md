@@ -6,7 +6,7 @@ When this decorator and the [meta-buildpack](https://github.com/guidowb/meta-bui
 is present in your Cloud Foundry deployment, you can select the 'Microgateway' service plan from the Apigee Edge service broker. With that service plan you can automatically add Apigee API Management via the Microgateway.
 
 # Summary
-The reason we developed an [Edge Microgateway](http://docs.apigee.com/microgateway/latest/overview-edge-microgateway) decorator is to allow customers running Cloud Foundry to protect their microservices with Apigee, which automatically gets you OAuth 2.0, rate limiting with spike arrests and quotas, and analytics to monitor your run-time traffic.  Edge Microgateway also reduces the latency between The Edge Microgateway decorator will run inside the same container that executes the App.  The following documentation describes how to test this decorator in a Bosh-lite instance protecting a sample Spring Boot application.
+The reason we developed an [Edge Microgateway](http://docs.apigee.com/microgateway/latest/overview-edge-microgateway) decorator is to allow customers running Cloud Foundry to protect their microservices with Apigee, which automatically gets you OAuth 2.0, rate limiting with spike arrests and quotas, and analytics to monitor your run-time traffic.  The Edge Microgateway decorator will run inside the same container that executes the App, which significantly reduces the latency.  The following documentation describes how to test this decorator in a Bosh-lite instance protecting a sample Spring Boot application.
 
 Please note the following:
 * Edge Microgateway is listening on port 8080
@@ -14,11 +14,6 @@ Please note the following:
 * Cloud Foundry creates an HTTP route to the app based on the Manifest.yml file located in the spring_hello App
 * Apps that use the HTTP route are required to listed on port 8080 (will validate)
 
-
-## Testing
-This decorator was tested with a sample Spring Boot application.
-
-* Additional tests will be added
 
 ## What is the additional space required for my container?
 Edge Microgateway is a Node.js application that includes other node libraries as well. Therefore, the total additional space required is the total space for the Node.js runtime, the core Microgateway and all of the required node modules.  
@@ -250,31 +245,31 @@ You must modify the service attributes below before you execute the `cf cups` co
 
 ### Create the new service
 ```
-cf cups Edge Microgateway_service -p '{"application_name":"Edge Microgateway_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "tags": ["Edge Microgateway"]}'
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "tags": ["edgemicro"]}'
 ```
 
 ### Update an existing service
 You only have to execute this command if you want to update an existing service.  
 ```
-cf uups Edge Microgateway_service -p '{"application_name":"Edge Microgateway_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "tags": ["Edge Microgateway"]}'
+cf uups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "tags": ["edgemicro"]}'
 ```
 
 ### View all services/View existing service
 ```
 cf services
-cf service Edge Microgateway_service
+cf service edgemicro_service
 ```
 
 ## 11.b Bind a Service to an App
 You must bind the service to the spring_hello app so that the Edge Microgateway configuration values are available to Edge Microgateway_decorator during startup.  
 ```
-cf bind-service spring_hello Edge Microgateway_service
+cf bind-service spring_hello edgemicro_service
 ```
 
 Result:
 
 ```
-Binding service Edge Microgateway_service to app spring_hello in org orgname / space myspace as admin...
+Binding service edgemicro_service to app spring_hello in org orgname / space myspace as admin...
 OK
 TIP: Use 'cf restage spring_hello' to ensure your env variable changes take effect
 ```
@@ -294,7 +289,7 @@ System-Provided:
   "user-provided": [
    {
     "credentials": {
-     "application_name": "Edge Microgateway_service"
+     "application_name": "edgemicro_service"
     },
     "label": "user-provided",
     "name": "Edge Microgateway_service",
@@ -510,6 +505,28 @@ SSH into a running CF container by including the container index number with the
 cf ssh spring_hello -i 1
 ```
 
+# Testing
+This decorator was tested with a sample Spring Boot application.
+
+* Additional tests will be added for Node.js, Java, etc.
+
+## Gatling tests
+[Gatling](http://gatling.io/) tests are included in the `gatling` directory.  
+
+![Performance Test Results](/gatling/screenshots/gatlingtestresults.png?raw=true "Gatling Test Results")
+
+### How to execute the Gatling tests?
+1. Must have an Edge account with an Edge product defined (see prerequisites above)
+2. Must update the following variables in the `gatling/src/test/edgemicro/BasicSimulation.scala` class. Update the values shown below.
+   * val org = "edge_org"
+   * val env = "edge_env"
+   * val clientId = "clientId"
+   * val secret = "clientsecret"
+3. Execute the following command.
+```
+cd gatling
+mvn gatling:execute -Dgatling.simulationClass=edgemicro.BasicSimulation
+```
 
 # MISC
 
