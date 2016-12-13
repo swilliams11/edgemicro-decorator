@@ -39,6 +39,20 @@ def getOrgEnv():
 		sys.exit(1)
 	print '-o %s -e %s' % (service["credentials"]["org"], service["credentials"]["env"])
 
+def getEdgemicroVersion():
+	appinfo = get_application_info()
+	service = find_edgemicro_service(appinfo)
+	if service == None:
+		sys.exit(1)
+	print '%s' % (service["credentials"]["edgemicro_version"])
+
+def getEdgemicroPort():
+	appinfo = get_application_info()
+	service = find_edgemicro_service(appinfo)
+	if service == None:
+		sys.exit(1)
+	print '%s' % (service["credentials"]["edgemicro_port"])
+
 def getAppName():
 	appinfo = get_application_info()
 	# json.dump(appinfo, sys.stderr, indent=4)
@@ -56,7 +70,7 @@ def updateMicroConfig(timeunit, allow):
 	timeunitPattern = re.compile(r"""(timeUnit: )(\w+)""", re.MULTILINE)
 	allowPattern = re.compile(r"""(allow: )(\w+)""", re.MULTILINE)
 	buildpath = os.environ['BUILD_DIR']
-	yamlfile = os.path.join(buildpath,'apigee_edge_micro','microgateway-2.1.2','config','default.yaml')
+	yamlfile = os.path.join(buildpath,'apigee_edge_micro','microgateway-2.3.1','config','default.yaml')
 	data = file(yamlfile,'r').read()
 	data = timeunitPattern.sub(r'\g<1>' + timeunit, data)
 	data = allowPattern.sub(r'\g<1>' + allow, data)

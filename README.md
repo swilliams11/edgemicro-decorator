@@ -13,18 +13,21 @@ Please note the following:
 * [Spring Boot sample application](https://github.com/spring-guides/gs-rest-service) is listening on port 8090 and you can view the [docs here](https://spring.io/guides/gs/rest-service/).
 * Cloud Foundry creates an HTTP route to the app based on the Manifest.yml file located in the spring_hello App
 * Apps that use the HTTP route are required to listed on port 8080 (will validate)
+* This repo uses Edge Microgateway version 2.3.1
 
 
 ## What is the additional space required for my container?
 Edge Microgateway is a Node.js application that includes other node libraries as well. Therefore, the total additional space required is the total space for the Node.js runtime, the core Microgateway and all of the required node modules.  
 * Node.js v6.9.1-linux-x64 - ~48MB
 * Edge Microgateway v2.1.2 (including node_modules) - ~103MB
+* Edge Microgateway v2.3.1 (including node_modules) - ~103MB
 
 ## What files are included in the edgemicro-decorator?
 There are several files that are include:
 * `lib` directory
   * apigee-edge-micro.zip - older version of microgateway 1.0 (will be removed)
   * microgateway-2.1.2.zip - includes all the required node_modules for Microgateway to run
+  * microgateway-2.3.1.zip - includes all the required node_modules for Microgateway to run
   * microgateway-2.1.2min.zip - only includes the core Microgateway.  This requires that `npm install` is executed to install the required node modules.
   * node-v6.9.1-linux-x64.tar.xz - Node.js runtime
   * node-v6.9.1.tar.gz - Node.js runtime (will be removed)
@@ -39,6 +42,23 @@ There are several files that are include:
 ## What is the additional latency to proxy requests via Microgateway running on the same VM as my app?
 * See the [Gatling tests](#gatling-tests) below
 
+## How much memory is required to run Edgemicro in my container?
+When I ran EM v2.1.2 in CF Diego architecture it was able to run within a 256MB container.  However, when I switched to EM 2.3.1, the container failed on startup and there were out-of-memory error messages.  I increased the container memory to 512MB and then the container started successfully.  
+
+* Edge Microgateway v2.1.2 - TODO
+
+* Edge Microgateway v2.3.1
+Snapshot of container memory consumption immediately after startup.
+```
+state     since                    cpu    memory           disk           details
+#0   running   2016-12-13 11:38:54 AM   0.9%   406.8M of 512M   297.9M of 1G
+```
+
+Snapshot of container memory consumption no requests
+```
+state     since                    cpu    memory      disk      details
+#0   running   2016-12-13 11:49:49 AM   0.0%   0 of 512M   0 of 1G
+```
 
 # Prerequisites
 1. You should have an Apigee Edge account (private or public).
@@ -245,13 +265,13 @@ You must modify the service attributes below before you execute the `cf cups` co
 
 ### Create the new service
 ```
-cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "tags": ["edgemicro"]}'
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "tags": ["edgemicro"]}'
 ```
 
 ### Update an existing service
 You only have to execute this command if you want to update an existing service.  
 ```
-cf uups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "tags": ["edgemicro"]}'
+cf uups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "tags": ["edgemicro"]}'
 ```
 
 ### View all services/View existing service
@@ -384,19 +404,32 @@ I had to make several changes to this file based on the errors reported. View th
 * copied the `manifest_orig.yml` into the `manifest.yml`
 * removed several null references in the manifest.yml
 
+Edgemicro v2.1.2
 ```
 cf target -o "apigee" -s "myspace"
 
 cf push spring_hello
 ```
 
+
+
 ## 13. Deploy to CF and enable Diego
 Make sure your CF target is set (completed in step 7) and then push the spring_hello application.  At this point when you deploy to CF, the application is deployed to the DEA (Droplet Execution Agent) architecture.  Therefore, you must enable Diego for the app to run on the diego architecture.  If you don't enable it then the meta-buildpack does not get applied (need to troubleshoot why).
 
+Edgemicro v2.1.2
 ```
 cf target -o "orgname" -s "myspace"
 cd [path to your Github directory]/Github/bosh/gs-rest-service/complete
 cf push spring_hello --no-start
+cf enable-diego spring_hello
+cf start spring_hello
+```
+
+Edgemicro v2.3.1
+```
+cf target -o "orgname" -s "myspace"
+cd [path to your Github directory]/Github/bosh/gs-rest-service/complete
+cf push spring_hello --no-start -m 512MB
 cf enable-diego spring_hello
 cf start spring_hello
 ```
@@ -552,9 +585,16 @@ cf apps
 
 Should display
 
+Edgemicro 2.1.2
 ```
 name           requested state   instances   memory   disk   urls
 spring_hello   started           1/1         256M     1G     rest-service.bosh-lite.com
+```
+
+Edgemicro v2.3.1
+```
+name           requested state   instances   memory   disk   urls
+spring_hello   started           1/1         512M     1G     rest-service.bosh-lite.com
 ```
 
 ### 3. Deploy to CF Diego Architecture
@@ -636,6 +676,6 @@ Execute the following line:
 2. Document latency between first POC (EM running in separate containers) vs EM running in same container.    
 
 # Open Items
-1. Current implementation uses Microgateway v2.1.2; however, 3.1.1 has just been released, so I need to switch to this version.  
+1. Current implementation uses Microgateway v2.1.2; however, 3.2.1 has just been released, so I need to switch to this version.  
 2. Need to change the code so that you can configure which version of Edge Microgateway you want to use; however, the default selection should be the most current Edge Microgateway.
 3. Clean up the configure script.
