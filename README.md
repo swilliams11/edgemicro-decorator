@@ -470,7 +470,7 @@ In order to send a valid request, you must obtain a valid access token first.
 ### a. Request JWT
 Request a JWT from your OAuth proxy deployed to Edge.  This OAuth proxy is configured automatically when the Edge Microgateway-decorator executes the `init` step.  Make sure to include the client_id and secret from your Apigee product in the curl command below.
 ```
-curl -X POST -H "Content-type: application/json" http://org-env.apigee.net/Edge Microgateway-auth/token -d '{"client_id":"client_id","client_secret":"client_secret","grant_type":"client_credentials"}' -v
+curl -X POST -H "Content-type: application/json" http://org-env.apigee.net/edgemicro-auth/token -d '{"client_id":"client_id","client_secret":"client_secret","grant_type":"client_credentials"}' -v
 ```
 
 Mocked Response (actual JWT is much longer):
