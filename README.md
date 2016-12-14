@@ -65,7 +65,7 @@ state     since                    cpu    memory      disk      details
 2. You should [create an Apigee Edge Microgateway](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#Part2) aware proxy.
    * Proxy base path should be /greeting
    * Target should be http://localhost:8090/greeting
-   * You should configure the following paths in your Apigee Edge Microgateway product: `/greeting`, `/greeting/**`.
+   * You should configure the following paths in your Apigee Edge Microgateway product: `/**`, `/greeting`, `/greeting/**`.
 3. You should install [Bosh-lite](https://github.com/cloudfoundry/bosh-lite).
 
 # What You Need To Know
