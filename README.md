@@ -361,7 +361,7 @@ cf install-plugin Diego-Enabler -r CF-Community
 
 #### Make sure to bind the Edge Microgateway Service to spring_hello app
 ```
-cf bind-service spring_hello Edge Microgateway_service
+cf bind-service spring_hello edgemicro_service
 ```
 
 ### Deploy to diego-release CF 1st Attempt
@@ -575,9 +575,16 @@ cf delete spring_hello
 ```
 
 ### 2. Redeploy to CF
+Edge Microgateway v2.1.2
 ```
 cf push spring_hello
 ```
+
+Edge Microgateway v2.3.1
+```
+cf push spring_hello -m 512M
+```
+
 
 ```
 cf apps
@@ -605,7 +612,7 @@ cf enable-diego spring_hello
 ### 4. Bind the service
 Make sure that it was [created](#create-the-new-service).
 ```
-cf bind-service spring_hello Edge Microgateway_service
+cf bind-service spring_hello edgemicro_service
 ```
 
 ### 5. Restage Spring hello
@@ -672,10 +679,7 @@ Execute the following line:
 ```
 
 # Immediate Action Items
-1. Document additional space requirements for including Edge Microgateway in CF App container.
-2. Document latency between first POC (EM running in separate containers) vs EM running in same container.    
+1. Document latency between first POC (EM running in separate containers) vs EM running in same container.    
 
 # Open Items
-1. Current implementation uses Microgateway v2.1.2; however, 3.2.1 has just been released, so I need to switch to this version.  
-2. Need to change the code so that you can configure which version of Edge Microgateway you want to use; however, the default selection should be the most current Edge Microgateway.
-3. Clean up the configure script.
+1. Clean up the configure script.
