@@ -1,0 +1,14 @@
+{
+  "apiResources" : [ "/**" ],
+  "approvalType" : "auto",
+  "attributes" : [ ],
+  "description" : "Edgemicro product for the Cloud Foundry Edgemicro-decorator",
+  "displayName" : "EdgemicroProduct",
+  "environments" : [ "test", "prod" ],
+  "name" : "EdgemicroProduct",
+  "proxies" : [ PROXY ],
+  "quota" : "10",
+  "quotaInterval" : "1",
+  "quotaTimeUnit" : "minute",
+  "scopes" : [ "READ" ]
+}
