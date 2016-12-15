@@ -38,6 +38,8 @@ There are several files that are include:
   * decorate - determines if this decorator should run
   * detect - always returns false
 * `upload` - uploads this decorator to CF
+* `edge` directory - includes the `edgemicro_cloudfoundry` proxy and scripts to deploy it along with the required product, app and developer to Edge.
+* `gatling` directory - includes Gatling tests for the Edgemicro/Spring boot application deployed to Cloud Foundry.
 
 ## What is the additional latency to proxy requests via Microgateway running on the same VM as my app?
 * See the [Gatling tests](#gatling-tests) below
@@ -62,7 +64,7 @@ state     since                    cpu    memory      disk      details
 
 # Prerequisites
 1. You should have an Apigee Edge account (private or public).
-2. You should [create an Apigee Edge Microgateway](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#Part2) aware proxy.  Follow the [README](https://github.com/swilliams11/edgemicro-decorator/tree/master/edge) in the `edge` directory which describes how to deploy the Edge Microgateway aware proxy.  
+2. You should [create an Apigee Edge Microgateway](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#Part2) aware proxy.  Follow the [README](https://github.com/swilliams11/edgemicro-decorator/tree/master/edge) in the `edge` directory which describes how to deploy the Edge Microgateway aware proxy.  The scripts in this directory will correctly configure the items listed below.  
    * Proxy base path should be /greeting
    * Target should be http://localhost:8090/greeting
    * You should configure the following paths in your Apigee Edge Microgateway product: `/**`, `/greeting`, `/greeting/**`.
@@ -441,8 +443,8 @@ Overview of process execution when you execute the `cf start spring_hello` comma
 * The appropriate buildback executes, in this case Java.
 * Control is passed back to meta-buildpack
 * Meta-buildpack calls each decorator's decorate script. In this case it calls the Edge Microgateway-decorator.
-* The decorator's detect script determines if it should the decorator's compile step.
-* The Edge Microgateway-decorator executes the compile script, which in turn initializes and configures Edge Microgateway. It also copies a shell script into the `profile.d` directory which executes when the container starts.  The shell script starts Edge Microgateway and listens on port 8080.
+* The decorator's detect script determines if it should execute the decorator's compile step.
+* Edgemicro-decorator executes the compile script, which in turn initializes and configures Edge Microgateway. It also copies a shell script into the `profile.d` directory, which executes when the container starts.  The shell script starts Edge Microgateway and listens on port 8080.
 * Droplet is saved in the CF blob store.
 * Staging container is destroyed.
 * CF creates a new container which starts Edge Microgateway and then starts the Spring application.
