@@ -62,7 +62,7 @@ state     since                    cpu    memory      disk      details
 
 # Prerequisites
 1. You should have an Apigee Edge account (private or public).
-2. You should [create an Apigee Edge Microgateway](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#Part2) aware proxy.
+2. You should [create an Apigee Edge Microgateway](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#Part2) aware proxy.  Follow the [README](https://github.com/swilliams11/edgemicro-decorator/tree/master/edge) in the `edge` directory which describes how to deploy the Edge Microgateway aware proxy.  
    * Proxy base path should be /greeting
    * Target should be http://localhost:8090/greeting
    * You should configure the following paths in your Apigee Edge Microgateway product: `/**`, `/greeting`, `/greeting/**`.
