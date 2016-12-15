@@ -4,9 +4,7 @@ The directory `/edgemicro_cloudfoundry` contains the required sample API proxy.
 
 # Configure
 
-This sample requires you to create a set of developers, apps, and API products in your organization. To create these entities, run the scripts under `../setup`. Follow the instructions in `../setup/README`.
-
-Alternatively, if you run `../setup/deploy_all.sh`, you will be prompted to create the developers, apps, and API products.
+In order to deploy this proxy, you need to create a developer, an app, and an API product in your organization. The setup script below describes how to complete this.
 
 1. Update `/setup/setenv.sh` with your organization name and email address.
 
