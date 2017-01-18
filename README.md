@@ -1,18 +1,18 @@
 # Apigee Edge Microgateway Decorator
 
-This is a [decorator](https://github.com/guidowb/meta-buildpack/blob/master/README.md#decorators) buildpack for Cloud Foundry that provides integration with the Apigee Edge API Management via the Edge Microgateway.
+This is a [decorator](https://github.com/guidowb/meta-buildpack/blob/master/README.md#decorators) buildpack for Cloud Foundry that supports integration with Edge on-premises/public cloud via the Edge Microgateway.
 
 When this decorator and the [meta-buildpack](https://github.com/guidowb/meta-buildpack))
 is present in your Cloud Foundry deployment, you can select the 'Microgateway' service plan from the Apigee Edge service broker. With that service plan you can automatically add Apigee API Management via the Microgateway.
 
 # Summary
-The reason we developed an [Edge Microgateway](http://docs.apigee.com/microgateway/latest/overview-edge-microgateway) decorator is to allow customers running Cloud Foundry to protect their microservices with Apigee, which automatically gets you OAuth 2.0, rate limiting with spike arrests and quotas, and analytics to monitor your run-time traffic.  The Edge Microgateway decorator will run inside the same container that executes the App, which significantly reduces the latency.  The following documentation describes how to test this decorator in a Bosh-lite instance protecting a sample Spring Boot application.
+The reason we developed an [Edge Microgateway](http://docs.apigee.com/microgateway/latest/overview-edge-microgateway) decorator is to allow customers running Cloud Foundry to protect their microservices with Apigee Edge, which supports OAuth 2.0, rate limiting with spike arrests and quotas, and analytics to monitor your run-time traffic.  The Edge Microgateway decorator will run inside the same container that executes the App, which significantly reduces the latency.  The following documentation describes how to test this decorator in a Bosh-lite instance protecting a sample Spring Boot application.
 
 Please note the following:
 * Edge Microgateway is listening on port 8080
 * [Spring Boot sample application](https://github.com/spring-guides/gs-rest-service) is listening on port 8090 and you can view the [docs here](https://spring.io/guides/gs/rest-service/).
 * Cloud Foundry creates an HTTP route to the app based on the Manifest.yml file located in the spring_hello App
-* Apps that use the HTTP route are required to listed on port 8080 (will validate)
+* Apps that use the HTTP route are required to listen on port 8080
 * This repo uses Edge Microgateway version 2.3.1
 
 
@@ -23,7 +23,7 @@ Edge Microgateway is a Node.js application that includes other node libraries as
 * Edge Microgateway v2.3.1 (including node_modules) - ~103MB
 
 ## What files are included in the edgemicro-decorator?
-There are several files that are include:
+There are several files that are included:
 * `lib` directory
   * apigee-edge-micro.zip - older version of microgateway 1.0 (will be removed)
   * microgateway-2.1.2.zip - includes all the required node_modules for Microgateway to run
@@ -63,7 +63,7 @@ state     since                    cpu    memory      disk      details
 ```
 
 # Prerequisites
-1. You should have an Apigee Edge account (private or public).
+1. You should have an Apigee Edge account (on-premises or public).
 2. You should [create an Apigee Edge Microgateway](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#Part2) aware proxy.  Follow the [README](https://github.com/swilliams11/edgemicro-decorator/tree/master/edge) in the `edge` directory which describes how to deploy the Edge Microgateway aware proxy.  The scripts in this directory will correctly configure the items listed below.  
    * Proxy base path should be /greeting
    * Target should be http://localhost:8090/greeting
@@ -96,7 +96,7 @@ spiff
 ## 4. Deploy Cloud Foundry
 https://docs.cloudfoundry.org/deploying/common/deploy.html
 
-### Diego Architecture
+### Diego Architecture  
 Documentation regarding deployment and configuring Diego to run within Bosh-lite is found here.
 https://github.com/cloudfoundry/diego-release
 
@@ -226,7 +226,7 @@ You can either create a Procfile or update the Manifest.  The preferred approach
 This application will be deployed to CF's DEA architecture, so the meta-buildpack will not execute at this point and the service is directly available from `http://rest-service.bosh-lite.com/greeting`.  If you want the meta-buildpack to execute, then the application must be deployed to the Diego Architecture.  
 
 ### Update the manifest
-Update the manifest file as shown below; the file is located in `gs-rest-service/complete`.  When the app starts, CF will assign `rest-service.bosh-lite.com` as the route to this service.  The `path` property tells CF where the application code is located.  The is also the directory where CF will run the buildpack detection process to determine which buildpack to apply to start the service.
+Update the manifest file as shown below; the file is located in `gs-rest-service/complete`.  When the app starts, CF will assign `rest-service.bosh-lite.com` as the route to this service.  The `path` property tells CF where the application code is located.  This is also the directory where CF will run the buildpack detection process to determine which buildpack to apply to start the service.
 
 ```
 ---
@@ -442,7 +442,7 @@ Overview of process execution when you execute the `cf start spring_hello` comma
 * It passes control to the buildpacks process to detect which buildpack should execute the app.
 * The appropriate buildback executes, in this case Java.
 * Control is passed back to meta-buildpack
-* Meta-buildpack calls each decorator's decorate script. In this case it calls the Edge Microgateway-decorator.
+* Meta-buildpack calls each decorator's decorate script. In this case it calls the edgemicro-decorator.
 * The decorator's detect script determines if it should execute the decorator's compile step.
 * Edgemicro-decorator executes the compile script, which in turn initializes and configures Edge Microgateway. It also copies a shell script into the `profile.d` directory, which executes when the container starts.  The shell script starts Edge Microgateway and listens on port 8080.
 * Droplet is saved in the CF blob store.
