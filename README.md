@@ -2,7 +2,7 @@
 
 This is a [decorator](https://github.com/guidowb/meta-buildpack/blob/master/README.md#decorators) buildpack for Cloud Foundry that supports integration with Edge on-premises/public cloud via the Edge Microgateway.
 
-When this decorator and the [meta-buildpack](https://github.com/guidowb/meta-buildpack))
+When this decorator and the [meta-buildpack](https://github.com/guidowb/meta-buildpack)
 is present in your Cloud Foundry deployment, you can select the 'Microgateway' service plan from the Apigee Edge service broker. With that service plan you can automatically add Apigee API Management via the Microgateway.
 
 # Summary
@@ -25,12 +25,10 @@ Edge Microgateway is a Node.js application that includes other node libraries as
 ## What files are included in the edgemicro-decorator?
 There are several files that are included:
 * `lib` directory
-  * apigee-edge-micro.zip - older version of microgateway 1.0 (will be removed)
   * microgateway-2.1.2.zip - includes all the required node_modules for Microgateway to run
   * microgateway-2.3.1.zip - includes all the required node_modules for Microgateway to run
   * microgateway-2.1.2min.zip - only includes the core Microgateway.  This requires that `npm install` is executed to install the required node modules.
   * node-v6.9.1-linux-x64.tar.xz - Node.js runtime
-  * node-v6.9.1.tar.gz - Node.js runtime (will be removed)
   * nodejs.sh - copied to `profile.d` directory during the compile phase; sets environment variables
   * zz_micro_config.sh - copied to `profile.d` directory; it sets environment variables and starts Microgateway before CF starts the actual application.  
 * `bin` directory
@@ -46,8 +44,6 @@ There are several files that are included:
 
 ## How much memory is required to run Edgemicro in my container?
 When I ran EM v2.1.2 in CF Diego architecture it was able to run within a 256MB container.  However, when I switched to EM 2.3.1, the container failed on startup and there were out-of-memory error messages.  I increased the container memory to 512MB and then the container started successfully.  
-
-* Edge Microgateway v2.1.2 - TODO
 
 * Edge Microgateway v2.3.1
 Snapshot of container memory consumption immediately after startup.
