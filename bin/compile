@@ -60,7 +60,18 @@ python -c 'from micro_config import enableSpikeArrest; enableSpikeArrest()'
 #npm install edgemicro@2.1.2 -g
 # /home/vcap/app/apigee_edge_micro/microgateway-2.1.2/cli
 INIT_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro init)"
-CONFIG_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro configure $MICROCONFIG)"
+IS_ONPREMISES="$(python -c 'from micro_config import getOnpremises; getOnpremises()')"
+echo "IS_ONPREMISES is $IS_ONPREMISES"
+CONFIG_OUT=""
+if [ "$IS_ONPREMISES" == "true" ]; then
+  echo "configure private..."
+  PRIVATE_CONFIG="$(python -c 'from micro_config import getOnpremisesConfig; getOnpremisesConfig()')"
+  echo "private config is: $PRIVATE_CONFIG"
+	CONFIG_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro private configure $PRIVATE_CONFIG)"
+else
+  echo "configure cloud..."
+  CONFIG_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro configure $MICROCONFIG)"
+fi
 
 echo "$INIT_OUT"
 echo "$CONFIG_OUT"

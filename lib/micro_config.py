@@ -58,8 +58,51 @@ def getAppName():
 	# json.dump(appinfo, sys.stderr, indent=4)
 	print appinfo['uris'][0].replace('.', '-')
 
+# get the onpremises property from the credentails object
+#
+def getOnpremises():
+	creds = getEdgemicroServiceCredential()
+	isOnpremises = creds.get('onpremises','false')
+	print isOnpremises
+
+# get the onpremises config object
+#
+def getOnpremisesConfig():
+	creds = getEdgemicroServiceCredential()
+	onpremisesConfig = creds.get('onprem_config', None)
+	if onpremisesConfig == None:
+		print 'Missing onpremises_config object.'
+		sys.exit(1)
+
+	print '-o %s -e %s -u %s -p %s -r %s -m %s -v %s' % \
+		(creds["org"], creds["env"], \
+		creds["user"], creds["pass"], \
+		onpremisesConfig["runtime_url"], \
+		onpremisesConfig["mgmt_url"], \
+		onpremisesConfig["virtual_host"])
+
+# get edgemicro service object
+# if the credentials object exist then continue
+# otherwise exit immediately
+#
+def getEdgemicroServiceCredential():
+	appinfo = get_application_info()
+	service = find_edgemicro_service(appinfo)
+	if service == None:
+		print 'Missing Edgemicro service object.'
+		sys.exit(1)
+
+	creds = service.get('credentials')
+
+	if creds == None:
+		print 'Missing the Edgemicro credentials service object.'
+		sys.exit(1)
+
+	return creds
+
 # Update the default.yaml file to include the spike arrest
-# if the credentails object contains enable_spike_arrest
+# if the credentails object contains enable_spike_arrest : true
+# then continue otherwise exit.
 #
 def enableSpikeArrest():
 	appinfo = get_application_info()
@@ -87,7 +130,8 @@ def enableSpikeArrest():
 			addPluginToPluginsSequence('      - spikearrest\n', edgemicroVersion)
 			print 'Spike Arrest is enabled: ' + spikeArrestConfig
 
-# Get the spike arrest config from the credentail object
+
+# Get the spike arrest config from the credential object
 #
 def getSpikeArrestConfig(credential):
 	spikeConfig = credential.get('spike_arrest_config')

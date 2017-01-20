@@ -290,6 +290,18 @@ cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"ap
 
  View the [spike arrest plugin documentation](http://docs.apigee.com/microgateway/latest/use-plugins#usingthespikearrestplugin) for more details regarding configuration options.
 
+### Enable on-premises
+Enable on-premises configuration option with the following command.
+* virtual_host is a comma separated list of virtual hosts within your Edge environment.
+
+```
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "onpremises": "true", "onprem_config" : {"runtime_url": "http://192.168.56.101:9001", "mgmt_url" : "http://192.168.56.101:8080", "virtual_host" : "default"}, "tags": ["edgemicro"]}'
+```
+
+View the [on premises documentation](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#part1configureedgemicrogateway-apigeeprivatecloudconfigurationsteps) for more details regarding configuration options.
+
+
+
 ### View all services/View existing service
 ```
 cf services
