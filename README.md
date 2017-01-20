@@ -272,6 +272,24 @@ You only have to execute this command if you want to update an existing service.
 cf uups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "tags": ["edgemicro"]}'
 ```
 
+### Enable Spike Arrest
+
+#### Spike Arrest without buffersize
+
+The default `buffersize` is zero.
+
+```
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30"}, "tags": ["edgemicro"]}'
+```
+
+#### Spike Arrest with buffersize
+The `buffersize` is set.
+```
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30", "buffersize": "100"}, "tags": ["edgemicro"]}'
+```
+
+ View the [spike arrest plugin documentation](http://docs.apigee.com/microgateway/latest/use-plugins#usingthespikearrestplugin) for more details regarding configuration options.
+
 ### View all services/View existing service
 ```
 cf services

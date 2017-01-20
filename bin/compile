@@ -48,7 +48,8 @@ ORGENV="$(python -c 'from micro_config import getOrgEnv; getOrgEnv()')"
 ## updateMicroConfig spike arrest setting
 export BUILD_DIR=$BUILD_DIR
 echo `printenv | grep PATH`
-python -c 'from micro_config import updateSpikeArrest; updateSpikeArrest()'
+#python -c 'from micro_config import updateSpikeArrest; updateSpikeArrest()'
+python -c 'from micro_config import enableSpikeArrest; enableSpikeArrest()'
 
 ## configure edge microgateway
 #cd $BUILD_DIR/apigee_edge_micro/apigee-edge-micro-2.0.4/cli/

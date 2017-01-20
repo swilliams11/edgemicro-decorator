@@ -58,6 +58,57 @@ def getAppName():
 	# json.dump(appinfo, sys.stderr, indent=4)
 	print appinfo['uris'][0].replace('.', '-')
 
+# Update the default.yaml file to include the spike arrest
+# if the credentails object contains enable_spike_arrest
+#
+def enableSpikeArrest():
+	appinfo = get_application_info()
+	service = find_edgemicro_service(appinfo)
+
+	if service == None:
+		sys.exit(1)
+	creds = service.get('credentials')
+	enableSpikeArrest = creds.get('enable_spike_arrest','false')
+
+	if enableSpikeArrest.lower() == 'true':
+		spikeConfig = getSpikeArrestConfig(creds)
+		if spikeConfig != None :
+			edgemicroVersion = creds.get('edgemicro_version')
+			spikeArrestConfig = '\nspikearrest:\n' + \
+				'  timeUnit: ' + spikeConfig.get('timeunit', 'minute') + \
+				'\n' + '  allow: ' + spikeConfig.get('allow', '30') + '\n'
+			buffersize = spikeConfig.get('buffersize')
+			if buffersize is not None:
+				spikeArrestConfig = spikeArrestConfig + '  buffersize: ' + buffersize + '\n'
+			buildpath = os.environ['BUILD_DIR']
+			yamlfile = os.path.join(buildpath,'apigee_edge_micro','microgateway-' + edgemicroVersion,'config','default.yaml')
+			fh = open(yamlfile, 'a')
+			fh.write(spikeArrestConfig)
+			addPluginToPluginsSequence('      - spikearrest\n', edgemicroVersion)
+			print 'Spike Arrest is enabled: ' + spikeArrestConfig
+
+# Get the spike arrest config from the credentail object
+#
+def getSpikeArrestConfig(credential):
+	spikeConfig = credential.get('spike_arrest_config')
+	if spikeConfig is None:
+		return None
+	return spikeConfig
+
+# add the plugin to the sequence
+#
+def addPluginToPluginsSequence(plugin, edgemicroVersion):
+	pluginsSection = "  plugins:\n    sequence:\n"
+	sequence = re.compile(r"""  plugins:\n    sequence:\n(      - .*\n)""")
+	buildpath = os.environ['BUILD_DIR']
+	yamlfile = os.path.join(buildpath,'apigee_edge_micro','microgateway-' + edgemicroVersion,'config','default.yaml')
+	data = file(yamlfile,'r').read()
+	#update the first group in this case it should be - oauth
+	# result is - oauth\n - spikearrest
+	#data = sequence.sub(r'\g<1>' + pluginsSection + plugin, data)
+	data = sequence.sub(pluginsSection + r'\g<1>' + plugin, data)
+	file(yamlfile,'w').write(data)
+
 def updateSpikeArrest():
 	appinfo = get_application_info()
 	service = find_edgemicro_service(appinfo)
