@@ -290,15 +290,106 @@ cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"ap
 
  View the [spike arrest plugin documentation](http://docs.apigee.com/microgateway/latest/use-plugins#usingthespikearrestplugin) for more details regarding configuration options.
 
-### Enable on-premises
+### Enable On-premises Deployment
 Enable on-premises configuration option with the following command.
-* virtual_host is a comma separated list of virtual hosts within your Edge environment.
+* virtual_host is a comma separated list of virtual hosts within your Edge environment. (i.e "default,secure")
 
 ```
 cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "onpremises": "true", "onprem_config" : {"runtime_url": "http://192.168.56.101:9001", "mgmt_url" : "http://192.168.56.101:8080", "virtual_host" : "default"}, "tags": ["edgemicro"]}'
 ```
 
 View the [on premises documentation](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#part1configureedgemicrogateway-apigeeprivatecloudconfigurationsteps) for more details regarding configuration options.
+
+#### Update the Cloud Foundry Staging Security Group(s)
+You must update the CF Staging security group as shown below.  
+
+* List all the security groups available.
+```
+cf security-groups
+```
+
+* List the security groups that are applicable to staging containers.
+```
+cf staging-security-groups
+```
+RESPONSE:
+```
+public_networks
+dns
+```
+
+* Get the public_networks security group IPs.
+```
+cf security-group public_networks
+```
+RESPONSE:
+```
+[
+		{
+			"destination": "0.0.0.0-9.255.255.255",
+			"protocol": "all"
+		},
+		{
+			"destination": "11.0.0.0-169.253.255.255",
+			"protocol": "all"
+		},
+		{
+			"destination": "169.255.0.0-172.15.255.255",
+			"protocol": "all"
+		},
+		{
+			"destination": "172.32.0.0-192.167.255.255",
+			"protocol": "all"
+		},
+		{
+			"destination": "192.169.0.0-255.255.255.255",
+			"protocol": "all"
+		}
+	]
+```
+
+* Copy this into a JSON file named `public_networks.json` and add the IP address of your on-premise deployment, as shown below.
+```
+[
+		{
+			"destination": "0.0.0.0-9.255.255.255",
+			"protocol": "all"
+		},
+		{
+			"destination": "11.0.0.0-169.253.255.255",
+			"protocol": "all"
+		},
+		{
+			"destination": "169.255.0.0-172.15.255.255",
+			"protocol": "all"
+		},
+		{
+			"destination": "172.32.0.0-192.167.255.255",
+			"protocol": "all"
+		},
+		{
+			"destination": "192.169.0.0-255.255.255.255",
+			"protocol": "all"
+		},
+    {
+			"destination": "192.169.56.101",
+			"protocol": "all"
+		}
+	]
+```
+
+ * Update the security group as shown below.
+ ```
+ cf update-security-group public_networks public_networks.json
+ ```
+
+ * Once the security group is updated, then you must restage the app for it to pick up the changes.
+ ```
+ cf restage spring_hello
+ ```
+
+#### Testing On-premises locally (Edge installed on local machine)
+Follow the steps above to ensure that CF can access the IP of your local installation.
 
 
 
@@ -311,6 +402,7 @@ cf service edgemicro_service
 ## 11.b Bind a Service to an App
 You must bind the service to the spring_hello app so that the Edge Microgateway configuration values are available to Edge Microgateway_decorator during startup.  
 ```
+cf push --no-start
 cf bind-service spring_hello edgemicro_service
 ```
 
@@ -580,7 +672,7 @@ The screen shot below is a partial view of the Gatling tests against a Bosh-lite
 ![Performance Test Results](/gatling/screenshots/gatlingtestresults.png?raw=true "Gatling Test Results")
 
 
-### How to execute the Gatling tests?
+### How do I execute the Gatling tests?
 1. Must have an Edge account with an Edge product defined (see prerequisites above)
 2. Must update the following variables in the `gatling/src/test/edgemicro/BasicSimulation.scala` class. Update the values shown below.
    * val org = "edge_org"

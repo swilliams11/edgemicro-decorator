@@ -6,6 +6,9 @@ ROOT_DIR=$(dirname $BIN_DIR)
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
+NODE_VERSION=node-v7.4.0-linux-x64.tar.xz
+NODE_VERSION_TRUCN=node-v7.4.0-linux-x64
+
 ## retrieve confige/org values from app service binding
 export PYTHONPATH="${PYTHONPATH}:$ROOT_DIR/lib"
 EDGEMICRO_VERSION="$(python -c 'from micro_config import getEdgemicroVersion; getEdgemicroVersion()')"
@@ -25,14 +28,14 @@ unzip $ROOT_DIR/lib/microgateway-$EDGEMICRO_VERSION.zip -d $BUILD_DIR/apigee_edg
 ## TODO: Also todo ... test this with a non-node.js cf app.
 
 ## node install
-tar xJf $ROOT_DIR/lib/node-v6.9.1-linux-x64.tar.xz -C /tmp
+tar xJf $ROOT_DIR/lib/$NODE_VERSION -C /tmp
 #rm -rf $BUILD_DIR/.heroku/node/*
 rm -rf $BUILD_DIR/node/*
 
 #echo "ls of /tmp/app"
 #echo `ls $BUILD_DIR`
 mkdir -p $BUILD_DIR/node
-mv /tmp/node-v6.9.1-linux-x64/* $BUILD_DIR/node
+mv /tmp/$NODE_VERSION_TRUCN/* $BUILD_DIR/node
 chmod +x $BUILD_DIR/node/bin/*
 #ln -s $BUILD_DIR/node/bin/node /usr/local/bin/node
 #ln -s $BUILD_DIR/node/bin/npm /usr/local/bin/npm
@@ -56,6 +59,9 @@ python -c 'from micro_config import enableSpikeArrest; enableSpikeArrest()'
 #cd $BUILD_DIR/apigee_edge_micro/microgateway-2.1.2/cli/
 #CONFIG_OUT="$(./edgemicro configure $MICROCONFIG)"
 
+#the following statement does not work - no access to run this from the container
+#ip route add 192.168.56.101 via 10.254.0.1
+
 #install via npm works
 #npm install edgemicro@2.1.2 -g
 # /home/vcap/app/apigee_edge_micro/microgateway-2.1.2/cli
@@ -66,7 +72,8 @@ CONFIG_OUT=""
 if [ "$IS_ONPREMISES" == "true" ]; then
   echo "configure private..."
   PRIVATE_CONFIG="$(python -c 'from micro_config import getOnpremisesConfig; getOnpremisesConfig()')"
-  echo "private config is: $PRIVATE_CONFIG"
+  #echo "private config is: $PRIVATE_CONFIG"
+  echo "$BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro private configure $PRIVATE_CONFIG"
 	CONFIG_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro private configure $PRIVATE_CONFIG)"
 else
   echo "configure cloud..."
