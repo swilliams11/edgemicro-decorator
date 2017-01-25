@@ -72,8 +72,7 @@ CONFIG_OUT=""
 if [ "$IS_ONPREMISES" == "true" ]; then
   echo "configure private..."
   PRIVATE_CONFIG="$(python -c 'from micro_config import getOnpremisesConfig; getOnpremisesConfig()')"
-  #echo "private config is: $PRIVATE_CONFIG"
-  echo "$BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro private configure $PRIVATE_CONFIG"
+  #echo "$BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro private configure $PRIVATE_CONFIG"
 	CONFIG_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro private configure $PRIVATE_CONFIG)"
 else
   echo "configure cloud..."
