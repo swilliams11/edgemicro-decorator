@@ -350,7 +350,7 @@ RESPONSE:
 	]
 ```
 
-* Copy this into a JSON file named `public_networks.json` and add the IP address of your on-premise deployment, as shown below.
+* Copy this into a JSON file named `public_networks.json` and add the IP address of your on-premise deployment, as shown below. **NOTE this is for Non production CF installations.**
 ```javascript
 [
 		{
@@ -370,11 +370,11 @@ RESPONSE:
 			"protocol": "all"
 		},
 		{
-			"destination": "192.169.0.0-255.255.255.255",
+			"destination": "192.168.0.0-255.255.255.255",
 			"protocol": "all"
 		},
     {
-			"destination": "192.169.56.101",
+			"destination": "192.168.56.101",
 			"protocol": "all"
 		}
 	]
@@ -392,7 +392,7 @@ RESPONSE:
  cf restage spring_hello
  ```
 
-#### Testing On-premises locally (Edge installed on local machine)
+#### Testing Performed with local On-premise
 Follow the steps above to ensure that CF can access the IP of your local installation.
 
 
@@ -513,7 +513,7 @@ cf bind-service spring_hello edgemicro_service
 ```
 
 ### Deploy to diego-release CF 1st Attempt
-This is recorded for posterity, so you can skip this section.  
+**This is recorded for posterity, so you can skip this section.**
 This is the first attempt to deploy to Diego architecture, which was not successful.  Need to troubleshoot this approach.  
 https://github.com/cloudfoundry/diego-release/blob/develop/docs/manifest-generation.md#example
 The following command does not work. It generates and error (Need to troubleshoot).
@@ -801,7 +801,7 @@ cf events spring_hello
 ```
 
 ## Unbinding/Binding Cloud Foundry Application Security Groups
-DO NOT do this for production servers.  This is only for Bosh-lite running on your local machine.
+**DO NOT do this for production servers.  This is only for Bosh-lite running on your local machine.**
 
 If you receive the following error when the staging container is starting, then this means that CF is  unable to send requests to the IP address of your on-premises installation. Make sure that you [update the CF security groups](#update-the-cloud-foundry-staging-security-groups)
 ```javascript
