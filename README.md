@@ -31,6 +31,7 @@ There are several files that are included:
   * node-v6.9.1-linux-x64.tar.xz - Node.js runtime
   * nodejs.sh - copied to `profile.d` directory during the compile phase; sets environment variables
   * zz_micro_config.sh - copied to `profile.d` directory; it sets environment variables and starts Microgateway before CF starts the actual application.  
+  * `plugins` folder that includes two sample custom plugins to demonstrate how to include custom plugins with the decorator. See the [enable custom plugins section](#enable-custom-plugins) for more details.
 * `bin` directory
   * compile - script that installs Node.js, and Microgateway; initializes and configures Microgateway.
   * decorate - determines if this decorator should run
@@ -324,7 +325,7 @@ dns
 cf security-group public_networks
 ```
 RESPONSE:
-```
+```javascript
 [
 		{
 			"destination": "0.0.0.0-9.255.255.255",
@@ -350,7 +351,7 @@ RESPONSE:
 ```
 
 * Copy this into a JSON file named `public_networks.json` and add the IP address of your on-premise deployment, as shown below.
-```
+```javascript
 [
 		{
 			"destination": "0.0.0.0-9.255.255.255",
@@ -448,9 +449,7 @@ Display environment variables for application.
 cf env spring_hello
 ```
 Result:
-```
-Getting env variables for app spring_hello in org orgname / space myspace as admin...
-OK
+```javascript
 
 System-Provided:
 {
@@ -804,8 +803,8 @@ cf events spring_hello
 ## Unbinding/Binding Cloud Foundry Application Security Groups
 DO NOT do this for production servers.  This is only for Bosh-lite running on your local machine.
 
-If you receive the following error when the staging container is starting, then this means that CF is  unable to send requests to the IP address of your on-premises installation. Make sure that you [update the CF security groups](#update-the-cloud-foundry-staging-security-group(s))
-```
+If you receive the following error when the staging container is starting, then this means that CF is  unable to send requests to the IP address of your on-premises installation. Make sure that you [update the CF security groups](#update-the-cloud-foundry-staging-security-groups)
+```javascript
 { Error: read ECONNRESET
    at exports._errnoException (util.js:1022:11)
    at TCP.onread (net.js:569:26) code: 'ECONNRESET', errno: 'ECONNRESET', syscall: 'read' }
