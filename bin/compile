@@ -67,7 +67,11 @@ python -c 'from micro_config import enableSpikeArrest; enableSpikeArrest()'
 # /home/vcap/app/apigee_edge_micro/microgateway-2.1.2/cli
 INIT_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro init)"
 IS_ONPREMISES="$(python -c 'from micro_config import getOnpremises; getOnpremises()')"
+ENABLE_CUSTOM_PLUGINS="$(python -c 'from micro_config import getEnableCustomPlugins; getEnableCustomPlugins()')"
+
 echo "IS_ONPREMISES is $IS_ONPREMISES"
+echo "ENABLE_CUSTOM_PLUGINS is $ENABLE_CUSTOM_PLUGINS"
+
 CONFIG_OUT=""
 if [ "$IS_ONPREMISES" == "true" ]; then
   echo "configure private..."
@@ -81,6 +85,17 @@ fi
 
 echo "$INIT_OUT"
 echo "$CONFIG_OUT"
+
+# custom plugins
+if [ "$ENABLE_CUSTOM_PLUGINS" == "true" ]; then
+  echo "custom plugins enabled..."
+  cp -r $ROOT_DIR/lib/plugins $BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/
+  echo "copied plugins to edgemicro directory"
+  PLUGINS="$(python -c 'from micro_config import enableCustomPlugins; enableCustomPlugins()')"
+  echo "$PLUGINS"
+else
+  echo "custom plugins disabled..."
+fi
 
 ## key/secret from config are used in start command
 MG_KEY=$(sed -n 's/key: \(.*\)/\1 /p' <<< "$CONFIG_OUT")

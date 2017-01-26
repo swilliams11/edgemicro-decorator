@@ -273,6 +273,7 @@ cf uups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"ap
 ```
 
 ### Enable Spike Arrest
+Spike arrest will always be added after the `oauth` plugin in the `plugin sequence` section.
 
 #### Spike Arrest without buffersize
 
@@ -383,6 +384,8 @@ RESPONSE:
  cf update-security-group public_networks public_networks.json
  ```
 
+ * Complete the same process outlined above for `services`, `user_bosh_deployments`, and `load_balancer`.
+
  * Once the security group is updated, then you must restage the app for it to pick up the changes.
  ```
  cf restage spring_hello
@@ -392,6 +395,32 @@ RESPONSE:
 Follow the steps above to ensure that CF can access the IP of your local installation.
 
 
+### Enable Custom Plugins
+The following items must be completed for this to work correctly.
+* add the custom plugin to the `lib/plugins` folder.  
+  * two sample plugins are included there by default as an example.
+  * plugin folder name should match the plugin name in the `plugins` property.
+* In the `edgemicro_service`
+  * `enable_custom_plugins` should be set to `true`
+  * `plugins` property should list all the plugins in the order in which you want them applied.
+    * `plugins` property should be comma separated without any spaces
+
+
+#### With OAuth
+Enable the custom plugins by including `enable_custom_plugins` and `plugins` properties.
+* Notice that `oauth` is included and it must be there.
+
+```
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_custom_plugins":"true","plugins":"oauth,plugin1,plugin2", "tags": ["edgemicro"]}'
+```
+
+#### With OAuth and Spike Arrest
+Enable the custom plugins by including `enable_custom_plugins` and `plugins` properties.
+* Notice that `oauth` and `spikearrest` are included and they both must be there for this to work correctly.
+
+```
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_custom_plugins":"true","plugins":"oauth,spikearrest,plugin1,plugin2", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30"}, "tags": ["edgemicro"]}'
+```
 
 ### View all services/View existing service
 ```
@@ -751,7 +780,7 @@ https://discuss.pivotal.io/hc/en-us/articles/220866207-How-to-login-an-app-s-con
 ## Cloud Foundry Logs and Events
 
 ### logs
-Stream events to terminal.
+Tail the logs (i.e. stream events to terminal).
 ```
 cf logs spring_hello
 ```
@@ -770,6 +799,33 @@ Timed out waiting for connection to Loggregator (wss://doppler.bosh-lite.com:444
 ### Events
 ```
 cf events spring_hello
+```
+
+## Unbinding/Binding Cloud Foundry Application Security Groups
+DO NOT do this for production servers.  This is only for Bosh-lite running on your local machine.
+
+If you receive the following error when the staging container is starting, then this means that CF is  unable to send requests to the IP address of your on-premises installation. Make sure that you [update the CF security groups](#update-the-cloud-foundry-staging-security-group(s))
+```
+{ Error: read ECONNRESET
+   at exports._errnoException (util.js:1022:11)
+   at TCP.onread (net.js:569:26) code: 'ECONNRESET', errno: 'ECONNRESET', syscall: 'read' }
+```
+If this was already completed, then unbind the security groups.
+```
+cf unbind-staging-security-group public_networks
+cf unbind-running-security-group load_balancer
+cf unbind-running-security-group public_networks
+cf unbind-running-security-group user_bosh_deployments
+cf unbind-running-security-group services
+```
+
+and bind them again.
+```
+cf bind-staging-security-group public_networks
+cf bind-running-security-group load_balancer
+cf bind-running-security-group public_networks
+cf bind-running-security-group user_bosh_deployments
+cf bind-running-security-group services
 ```
 
 ## Tile buildpacks - Need to review

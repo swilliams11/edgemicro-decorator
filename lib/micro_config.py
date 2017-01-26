@@ -58,6 +58,71 @@ def getAppName():
 	# json.dump(appinfo, sys.stderr, indent=4)
 	print appinfo['uris'][0].replace('.', '-')
 
+# get the enable_custom_plugins property from the credentials object
+#
+def getEnableCustomPlugins():
+	creds = getEdgemicroServiceCredential()
+	enableCustomPlugins = creds.get('enable_custom_plugins','false')
+	print enableCustomPlugins
+
+# enableCustomPlugins
+# this update the default.yaml with the plugins listed in the
+# plugins property.
+#
+def enableCustomPlugins():
+	appinfo = get_application_info()
+	service = find_edgemicro_service(appinfo)
+
+	if service == None:
+		sys.exit(1)
+	creds = service.get('credentials')
+	enableCustomPlugins = creds.get('enable_custom_plugins','false')
+
+	if enableCustomPlugins.lower() == 'true':
+		pluginsString = creds.get('plugins', None)
+		if pluginsString != None :
+			edgemicroVersion = creds.get('edgemicro_version')
+			plugins = pluginsString.split(',')
+			pluginSequence = '\n'.join(map(appendNewLine, plugins)) #creates - plugin1\n - plugin2\n
+			pluginSequence = '\n' + pluginSequence + '\n'
+			enableSpikeArrest = creds.get('enable_spike_arrest','false')
+
+			if enableSpikeArrest.lower() == 'true':
+				overridePluginSequence(pluginSequence, edgemicroVersion, 'oauth\n      - spikearrest')
+			else:
+				overridePluginSequence(pluginSequence, edgemicroVersion, 'oauth')
+
+			print 'Plugin sequence is: ' + pluginSequence
+		else:
+			print 'plugins property is missing from credentials object.'
+			sys.exit(1)
+
+def appendNewLine(plugin):
+	return '      - ' + plugin
+
+# override the plugin sequence
+# this function is called after the edgemicro configure command is executed.
+#
+#
+def overridePluginSequence(plugins, edgemicroVersion, search):
+	pluginsSection = "  plugins:\n    sequence:\n"
+	sequence = re.compile(r"""\s.*- """ + search + """\n""")
+	buildpath = os.environ['BUILD_DIR']
+	#correctly updates the file, however, edgemicro does not pick up the changes when configure runs
+	#updateFile(plugins, sequence, os.path.join(buildpath,'apigee_edge_micro','microgateway-' + edgemicroVersion,'config','default.yaml'))
+	#update the default.yaml in the .edgemicro directory
+	updateFile(plugins, sequence, os.path.join('/home/vcap/','.edgemicro','default.yaml'))
+	#update in the .edgemicro/org-env-config.yaml file as well
+	creds = getEdgemicroServiceCredential()
+	updateFile(plugins, sequence, os.path.join('/home/vcap/','.edgemicro',creds.get('org') + '-' + creds.get('env') + '-config.yaml'))
+	#updateFile(plugins, sequence, os.path.join('/home/vcap/','.edgemicro',creds.get('org') + '-' + creds.get('env') + '-cache-config.yaml'))
+
+def updateFile(plugins, sequence, yamlfile):
+	data = file(yamlfile,'r').read()
+	data = sequence.sub(plugins, data)
+	#print 'updated data is: ' + data
+	file(yamlfile,'w').write(data)
+
 # get the onpremises property from the credentails object
 #
 def getOnpremises():
