@@ -423,6 +423,23 @@ Enable the custom plugins by including `enable_custom_plugins` and `plugins` pro
 cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_custom_plugins":"true","plugins":"oauth,spikearrest,plugin1,plugin2", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30"}, "tags": ["edgemicro"]}'
 ```
 
+#### Enable Quota
+Enable the quota plugin by including `enable_quota` property set to `true`.
+* Quota will be place after the OAuth plugin.
+
+```
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_quota":"true", "tags": ["edgemicro"]}'
+```
+
+##### Enable Quota and Spike Arrest
+Enable the quota plugin by including `enable_quota` property set to `true`.
+* Quota will always be placed after the spike arrest.  
+
+```
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_quota":"true", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30"}, "tags": ["edgemicro"]}'
+```
+
+
 ### View all services/View existing service
 ```
 cf services

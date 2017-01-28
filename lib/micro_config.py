@@ -88,9 +88,11 @@ def enableCustomPlugins():
 			enableSpikeArrest = creds.get('enable_spike_arrest','false')
 
 			if enableSpikeArrest.lower() == 'true':
-				overridePluginSequence(pluginSequence, edgemicroVersion, 'oauth\n      - spikearrest')
+				search = 'oauth\n      - spikearrest'
+				overridePluginSequenceForCustomPlugins(pluginSequence, edgemicroVersion, search)
 			else:
-				overridePluginSequence(pluginSequence, edgemicroVersion, 'oauth')
+				search = 'oauth'
+				overridePluginSequenceForCustomPlugins(pluginSequence, edgemicroVersion, search)
 
 			print 'Plugin sequence is: ' + pluginSequence
 		else:
@@ -100,26 +102,43 @@ def enableCustomPlugins():
 def appendNewLine(plugin):
 	return '      - ' + plugin
 
+# helper function calls overridePluginSequence twice to update both the default.yaml.
+# and the org-env-config.yaml file, which are located in the .edgemicro directory
+# within the container.
+# @pluginSequence - the new plugin sequence as a string
+# @edgemicroversion - edgemicro version number
+# @search - the search paramter for the reqular expression
+#
+def overridePluginSequenceForCustomPlugins(pluginSequence, edgemicroVersion, search):
+	homepath = '/home/vcap/'
+	yamlfile = os.path.join(homepath,'.edgemicro','default.yaml')
+	overridePluginSequence(pluginSequence, edgemicroVersion, search, yamlfile)
+	creds = getEdgemicroServiceCredential()
+	yamlfile = 	os.path.join(homepath,'.edgemicro',creds.get('org') + '-' + creds.get('env') + '-config.yaml')
+	overridePluginSequence(pluginSequence, edgemicroVersion, search, yamlfile)
+
 # override the plugin sequence
-# this function is called after the edgemicro configure command is executed.
+# this function replaces the plugins: sequence: section with what is passed
+# into the plugins parameter.
+# @pluginSequence - the new plugin sequence as a string
+# @edgemicroversion - edgemicro version number
+# @search - the search paramter for the reqular expression
+# @yamfile - the yaml file that needs to be updated
 #
-#
-def overridePluginSequence(plugins, edgemicroVersion, search):
+def overridePluginSequence(pluginSequence, edgemicroVersion, search, yamlfile):
 	pluginsSection = "  plugins:\n    sequence:\n"
-	sequence = re.compile(r"""\s.*- """ + search + """\n""")
+	sequenceToUpdate = re.compile(r"""\s.*- """ + search + """\n""")
 	buildpath = os.environ['BUILD_DIR']
 	#correctly updates the file, however, edgemicro does not pick up the changes when configure runs
 	#updateFile(plugins, sequence, os.path.join(buildpath,'apigee_edge_micro','microgateway-' + edgemicroVersion,'config','default.yaml'))
 	#update the default.yaml in the .edgemicro directory
-	updateFile(plugins, sequence, os.path.join('/home/vcap/','.edgemicro','default.yaml'))
+	updateFile(pluginSequence, sequenceToUpdate, yamlfile)
 	#update in the .edgemicro/org-env-config.yaml file as well
-	creds = getEdgemicroServiceCredential()
-	updateFile(plugins, sequence, os.path.join('/home/vcap/','.edgemicro',creds.get('org') + '-' + creds.get('env') + '-config.yaml'))
 	#updateFile(plugins, sequence, os.path.join('/home/vcap/','.edgemicro',creds.get('org') + '-' + creds.get('env') + '-cache-config.yaml'))
 
-def updateFile(plugins, sequence, yamlfile):
+def updateFile(pluginSequence, sequenceToUpdate, yamlfile):
 	data = file(yamlfile,'r').read()
-	data = sequence.sub(plugins, data)
+	data = sequenceToUpdate.sub(pluginSequence, data)
 	#print 'updated data is: ' + data
 	file(yamlfile,'w').write(data)
 
@@ -225,6 +244,39 @@ def updateSpikeArrest():
 		sys.exit(1)
 	creds = service.get("credentials")
 	updateMicroConfig(creds.get("timeunit", "minute"), creds.get("allow", "30"))
+
+# Update the default.yaml file to include the quota.
+# if the credentails object contains enable_quota : true
+# then continue otherwise exit.
+#
+def enableQuota():
+	appinfo = get_application_info()
+	service = find_edgemicro_service(appinfo)
+
+	if service == None:
+		sys.exit(1)
+	creds = service.get('credentials')
+	enableQuota = creds.get('enable_quota','false')
+
+	if enableQuota.lower() == 'true':
+		edgemicroVersion = creds.get('edgemicro_version')
+		buildpath = os.environ['BUILD_DIR']
+		yamlfile = os.path.join(buildpath,'apigee_edge_micro','microgateway-' + edgemicroVersion,'config','default.yaml')
+		enableSpikeArrest = creds.get('enable_spike_arrest','false')
+
+		if enableSpikeArrest.lower() == 'true':
+			newSequence = '\n      - spikearrest\n      - quota'
+			overridePluginSequence(newSequence, edgemicroVersion, 'spikearrest', yamlfile)
+		else:
+			newSequence = '\n      - oauth\n      - quota\n'
+			overridePluginSequence(newSequence, edgemicroVersion, 'oauth', yamlfile)
+
+		print 'Quota is enabled.'
+	else:
+		print 'Quota is not enabled.'
+		sys.exit(1)
+
+
 
 def updateMicroConfig(timeunit, allow):
 	timeunitPattern = re.compile(r"""(timeUnit: )(\w+)""", re.MULTILINE)
