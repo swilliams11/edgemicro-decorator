@@ -443,7 +443,7 @@ cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"ap
 ```
 
 ### Select Node.js Version
-Select the Node.js version as shown below.  Make sure that file specified is also included in the `lib` directory.
+Select the Node.js version as shown below.  Make sure that Node.js `tar.xz` file specified in the `nodejs_version` is also included in the `lib` directory.
 
 ```
 cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080","nodejs_version": "node-v6.9.1-linux-x64.tar.xz", "tags": ["edgemicro"]}'
