@@ -6,11 +6,13 @@ ROOT_DIR=$(dirname $BIN_DIR)
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
-NODE_VERSION=node-v7.4.0-linux-x64.tar.xz
-NODE_VERSION_TRUCN=node-v7.4.0-linux-x64
+#NODE_VERSION=node-v7.4.0-linux-x64.tar.xz
+#NODE_VERSION_FOLDER=node-v7.4.0-linux-x64
+export PYTHONPATH="${PYTHONPATH}:$ROOT_DIR/lib"
+NODE_VERSION="$(python -c 'from micro_config import getNodejsVersion; getNodejsVersion()')"
+NODE_VERSION_FOLDER="$(python -c 'from micro_config import nodejsVersionFolderName; nodejsVersionFolderName()')"
 
 ## retrieve confige/org values from app service binding
-export PYTHONPATH="${PYTHONPATH}:$ROOT_DIR/lib"
 EDGEMICRO_VERSION="$(python -c 'from micro_config import getEdgemicroVersion; getEdgemicroVersion()')"
 EDGEMICRO_PORT="$(python -c 'from micro_config import getEdgemicroPort; getEdgemicroPort()')"
 
@@ -27,6 +29,12 @@ unzip $ROOT_DIR/lib/microgateway-$EDGEMICRO_VERSION.zip -d $BUILD_DIR/apigee_edg
 ##        install node.
 ## TODO: Also todo ... test this with a non-node.js cf app.
 
+## check if the file actually exists
+if [ ! -f "$ROOT_DIR/lib/$NODE_VERSION" ]; then
+  echo "Node.js file does not exist in lib directory. Exiting..."
+  exit 1
+fi
+
 ## node install
 tar xJf $ROOT_DIR/lib/$NODE_VERSION -C /tmp
 #rm -rf $BUILD_DIR/.heroku/node/*
@@ -35,7 +43,14 @@ rm -rf $BUILD_DIR/node/*
 #echo "ls of /tmp/app"
 #echo `ls $BUILD_DIR`
 mkdir -p $BUILD_DIR/node
-mv /tmp/$NODE_VERSION_TRUCN/* $BUILD_DIR/node
+
+# check if the folder actually exists
+if [ ! -d "/tmp/$NODE_VERSION_FOLDER" ]; then
+  echo "The folder to which Node.js was extracted does not exist in tmp directory. Exiting..."
+  echo "folder is /tmp/$NODE_VERSION_FOLDER"
+  exit 1
+fi
+mv /tmp/$NODE_VERSION_FOLDER/* $BUILD_DIR/node
 chmod +x $BUILD_DIR/node/bin/*
 #ln -s $BUILD_DIR/node/bin/node /usr/local/bin/node
 #ln -s $BUILD_DIR/node/bin/npm /usr/local/bin/npm

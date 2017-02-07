@@ -5,6 +5,9 @@ import json
 import urllib2
 import base64
 
+nodeDefaultVersion = 'node-v6.9.4-linux-x64.tar.xz'
+nodeFileExts = ['.tar.xz', '.tar.gz']
+
 def main():
 	get_vcap_config()
 	appinfo = get_application_info()
@@ -57,6 +60,34 @@ def getAppName():
 	appinfo = get_application_info()
 	# json.dump(appinfo, sys.stderr, indent=4)
 	print appinfo['uris'][0].replace('.', '-')
+
+# get Node.js version
+# the default version is 6.9.4
+#
+def getNodejsVersion():
+	creds = getEdgemicroServiceCredential()
+	nodeVersion = creds.get('nodejs_version', nodeDefaultVersion)
+	print nodeVersion
+
+
+# return the Node.js folder name, which is the Node.js
+# version with the file ext truncated.
+#
+def nodejsVersionFolderName():
+	creds = getEdgemicroServiceCredential()
+	nodeVersion = creds.get('nodejs_version', nodeDefaultVersion)
+	folderName = ''
+	for ext in nodeFileExts:
+		if nodeVersion.endswith(ext.strip()):
+			folderName = nodeVersion.replace(ext,'')
+			break
+
+	if folderName == '' :
+		print 'Invalid Node.js file extension; expected: ' + ','.join(nodeFileExts)
+		sys.exit(1)
+	else:
+		print folderName
+
 
 # get the enable_custom_plugins property from the credentials object
 #

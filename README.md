@@ -67,6 +67,9 @@ state     since                    cpu    memory      disk      details
    * You should configure the following paths in your Apigee Edge Microgateway product: `/**`, `/greeting`, `/greeting/**`.
 3. You should install [Bosh-lite](https://github.com/cloudfoundry/bosh-lite).
 
+# Select Node.js Version
+The default Node.js version that is used is `node-v6.9.4-linux-x64.tar.xz`.  This latest commit allows you to select the Node.js version, however, you must include the `tar.xz` file in the `lib` directory and you also must include the version in the `edgemicro` service. Read the [Select Node.js Version](#select-nodejs-version) section for details.
+
 # What You Need To Know
 The following steps will provide you with all the information that you need to setup Cloud Foundry in Bosh-lite.  
 
@@ -98,7 +101,7 @@ Documentation regarding deployment and configuring Diego to run within Bosh-lite
 https://github.com/cloudfoundry/diego-release
 
 Explicit instructions to deploy CF and Diego to Bosh-lite are found here.
-https://github.com/cloudfoundry/diego-release/tree/develop/examples/bosh-lite
+  https://github.com/cloudfoundry/diego-release/tree/develop/examples/bosh-lite
 
 #### Postgres
 Step 7 in the above link prompts you to select between MySQL and Postgres.  I tried the MySQL option but that generated an error so I decided to use the Postgres option instead.  Need to go back and determine why this option did not work. I think it might require the use of another Github repository to install the MySQL service within CF.  
@@ -439,6 +442,12 @@ Enable the quota plugin by including `enable_quota` property set to `true`.
 cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_quota":"true", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30"}, "tags": ["edgemicro"]}'
 ```
 
+### Select Node.js Version
+Select the Node.js version as shown below.  Make sure that file specified is also included in the `lib` directory.
+
+```
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080","nodejs_version": "node-v6.9.1-linux-x64.tar.xz", "tags": ["edgemicro"]}'
+```
 
 ### View all services/View existing service
 ```
