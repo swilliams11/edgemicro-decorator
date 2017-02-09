@@ -395,7 +395,7 @@ RESPONSE:
  cf restage spring_hello
  ```
 
-#### Testing Performed with local On-premise
+#### Testing Performed with local On-premises installation
 Follow the steps above to ensure that CF can access the IP of your local installation.
 
 
@@ -447,6 +447,22 @@ Select the Node.js version as shown below.  Make sure that Node.js `tar.xz` file
 
 ```
 cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080","nodejs_version": "node-v6.9.1-linux-x64.tar.xz", "tags": ["edgemicro"]}'
+```
+
+### Include a org-env-config.yaml file
+If your deployment request more custom configurations, then it may be easier to just include the `default.yaml` directly.
+
+* if you include custom plugins in the `plugins` directory they will be copied over to the container.
+
+Include the following properties as shown below.
+```
+"yaml_included":"true",
+"yaml_name":"demo-test-config.yaml"
+```
+
+Example command shown below.
+```
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "yaml_included":"true", "yaml_name":"demo-test-config.yaml", "tags": ["edgemicro"]}'
 ```
 
 ### View all services/View existing service

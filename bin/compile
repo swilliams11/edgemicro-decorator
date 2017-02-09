@@ -15,6 +15,23 @@ NODE_VERSION_FOLDER="$(python -c 'from micro_config import nodejsVersionFolderNa
 ## retrieve confige/org values from app service binding
 EDGEMICRO_VERSION="$(python -c 'from micro_config import getEdgemicroVersion; getEdgemicroVersion()')"
 EDGEMICRO_PORT="$(python -c 'from micro_config import getEdgemicroPort; getEdgemicroPort()')"
+YAML_INCLUDED="$(python -c 'from micro_config import yamlIncluded; yamlIncluded()')"
+YAML_NAME="$(python -c 'from micro_config import yamlName; yamlName()')"
+
+######## Functions
+
+# copy the plugins folder only if it exists.
+function copy_plugins_folder
+{
+  if [ -d "$ROOT_DIR/lib/plugins" ]; then
+    cp -r $ROOT_DIR/lib/plugins $BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/
+    echo "copied plugins folder from $ROOT_DIR/lib to $BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/"
+  else
+    echo "plugins folder does not exist in /lib directory."
+  fi
+}
+
+######## Main
 
 mkdir -p $BUILD_DIR/apigee_edge_micro
 mkdir -p $BUILD_DIR/.profile.d
@@ -28,6 +45,12 @@ unzip $ROOT_DIR/lib/microgateway-$EDGEMICRO_VERSION.zip -d $BUILD_DIR/apigee_edg
 ##        may have already done that for us. If that's the case we don't need to
 ##        install node.
 ## TODO: Also todo ... test this with a non-node.js cf app.
+
+# override the default.yaml file with the one from /lib directory
+if [ "$YAML_INCLUDED" == "true" ] && [ ! -f "$ROOT_DIR/lib/$YAML_NAME" ]; then
+  echo "$YAML_NAME does not exist in the /lib directory. Exiting..."
+  exit 1
+fi
 
 ## check if the file actually exists
 if [ ! -f "$ROOT_DIR/lib/$NODE_VERSION" ]; then
@@ -67,8 +90,10 @@ ORGENV="$(python -c 'from micro_config import getOrgEnv; getOrgEnv()')"
 export BUILD_DIR=$BUILD_DIR
 echo `printenv | grep PATH`
 #python -c 'from micro_config import updateSpikeArrest; updateSpikeArrest()'
-python -c 'from micro_config import enableSpikeArrest; enableSpikeArrest()'
-python -c 'from micro_config import enableQuota; enableQuota()'
+if [ "$YAML_INCLUDED" == "false" ]; then
+  python -c 'from micro_config import enableSpikeArrest; enableSpikeArrest()'
+  python -c 'from micro_config import enableQuota; enableQuota()'
+fi
 
 ## configure edge microgateway
 #cd $BUILD_DIR/apigee_edge_micro/apigee-edge-micro-2.0.4/cli/
@@ -82,9 +107,11 @@ python -c 'from micro_config import enableQuota; enableQuota()'
 #npm install edgemicro@2.1.2 -g
 # /home/vcap/app/apigee_edge_micro/microgateway-2.1.2/cli
 INIT_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro init)"
+
 IS_ONPREMISES="$(python -c 'from micro_config import getOnpremises; getOnpremises()')"
 ENABLE_CUSTOM_PLUGINS="$(python -c 'from micro_config import getEnableCustomPlugins; getEnableCustomPlugins()')"
 
+# Configure Edgemicro
 echo "IS_ONPREMISES is $IS_ONPREMISES"
 echo "ENABLE_CUSTOM_PLUGINS is $ENABLE_CUSTOM_PLUGINS"
 
@@ -102,10 +129,24 @@ fi
 echo "$INIT_OUT"
 echo "$CONFIG_OUT"
 
+# the following commands move .edgemicro from .edgemicro to app/.edgemicro
+mkdir -p $BUILD_DIR/.edgemicro
+cp ~/.edgemicro/* $BUILD_DIR/.edgemicro
+
+# copy the included yaml file to the .edgemicro directory
+# copy the plugins directory as well if they exist
+if [ "$YAML_INCLUDED" == "true" ]; then
+  echo "copying yaml file from /lib directory..."
+  cp $ROOT_DIR/lib/$YAML_NAME $BUILD_DIR/.edgemicro/$YAML_NAME
+  copy_plugins_folder
+fi
+
 # custom plugins
-if [ "$ENABLE_CUSTOM_PLUGINS" == "true" ]; then
+# use this feature when the YAML is NOT included.
+if [ "$ENABLE_CUSTOM_PLUGINS" == "true" ] && [ "$YAML_INCLUDED" == "false" ]; then
   echo "custom plugins enabled..."
-  cp -r $ROOT_DIR/lib/plugins $BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/
+  #cp -r $ROOT_DIR/lib/plugins $BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/
+  copy_plugins_folder
   echo "copied plugins to edgemicro directory"
   PLUGINS="$(python -c 'from micro_config import enableCustomPlugins; enableCustomPlugins()')"
   echo "$PLUGINS"
@@ -124,9 +165,7 @@ LOCAL_APP="$(python -c 'from micro_config import getAppName; getAppName()')"
 LOCAL_PATH="/"
 LOCAL_TARGET="http://localhost:8999"
 
-# the following commands move .edgemicro from .edgemicro to app/.edgemicro
-mkdir -p $BUILD_DIR/.edgemicro
-cp ~/.edgemicro/* $BUILD_DIR/.edgemicro
+
 
 echo "$ORGENV"
 echo "export PATH=/home/vcap/app/node/bin:$PATH" >> $BUILD_DIR/.profile.d/zz_micro_config.sh

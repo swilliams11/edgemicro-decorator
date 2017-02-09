@@ -1,0 +1,44 @@
+edge_config:
+  bootstrap: >-
+    http://192.168.56.101:9001/edgemicro/bootstrap/organization/demo/environment/test
+  jwt_public_key: 'http://192.168.56.101:9001/edgemicro-auth/publicKey'
+  managementUri: 'http://192.168.56.101:8080'
+  vaultName: microgateway
+  authUri: 'http://192.168.56.101:9001/edgemicro-auth'
+  baseUri: 'http://192.168.56.101:9001/edgemicro/%s/organization/%s/environment/%s'
+  bootstrapMessage: Please copy the following property to the edge micro agent config
+  keySecretMessage: The following credentials are required to start edge micro
+  products: 'http://192.168.56.101:9001/edgemicro-auth/products'
+edgemicro:
+  port: 8000
+  max_connections: 1000
+  max_connections_hard: 5000
+  restart_sleep: 500
+  restart_max: 50
+  max_times: 300
+  config_change_poll_interval: 600
+  logging:
+    level: error
+    dir: /var/tmp
+    stats_log_interval: 60
+    rotate_interval: 24
+  plugins:
+    sequence:
+      - oauth
+      - quota
+      - plugin1
+      - plugin2
+      - testPlugin
+headers:
+  x-forwarded-for: true
+  x-forwarded-host: true
+  x-request-id: true
+  x-response-time: true
+  via: true
+oauth:
+  allowNoAuthorization: false
+  allowInvalidAuthorization: false
+  verify_api_key_url: 'http://192.168.56.101:9001/edgemicro-auth/verifyApiKey'
+analytics:
+  uri: >-
+    http://192.168.56.101:9001/edgemicro/axpublisher/organization/demo/environment/test

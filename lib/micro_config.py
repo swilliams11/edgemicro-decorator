@@ -276,6 +276,24 @@ def updateSpikeArrest():
 	creds = service.get("credentials")
 	updateMicroConfig(creds.get("timeunit", "minute"), creds.get("allow", "30"))
 
+# retreive the yaml_included property from the service.
+#
+def yamlIncluded():
+	creds = getEdgemicroServiceCredential()
+	print creds.get('yaml_included','false').lower()
+
+# retrieve the yaml name
+#
+def yamlName():
+	creds = getEdgemicroServiceCredential()
+	filename = creds.get('yaml_name', None)
+	if filename == None or filename == '':
+		print 'yaml_name property is not defined in the edgemicro service'
+		sys.exit(1)
+
+	print creds.get('yaml_name')
+
+
 # Update the default.yaml file to include the quota.
 # if the credentails object contains enable_quota : true
 # then continue otherwise exit.
