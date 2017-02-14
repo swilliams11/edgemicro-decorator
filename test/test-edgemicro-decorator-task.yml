@@ -1,0 +1,13 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: bash
+    tag: latest
+
+inputs:
+- name: edgemicro-decorator
+
+run:
+  path: ./edgemicro-decorator/test/test-edgemicro-decorator-task.sh

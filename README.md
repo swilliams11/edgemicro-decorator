@@ -755,6 +755,10 @@ cd gatling
 mvn gatling:execute -Dgatling.simulationClass=edgemicro.BasicSimulation
 ```
 
+## Automated Testing
+I used [Concourse](https://concourse.ci/) to create a set of automated test scripts to confirm that I don't create existing functionality with new features.  See the testing folder.
+
+
 # MISC
 
 ## Troubleshooting - If spring_hello does not work, then follow the steps below to delete/recreate it
