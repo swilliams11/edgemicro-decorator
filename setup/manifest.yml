@@ -1,0 +1,11 @@
+---
+applications:
+- name: spring_hello
+  memory: 256M
+  instances: 1
+  host: rest-service
+  domain: bosh-lite.com
+  path: build/libs/gs-rest-service-0.1.0.jar
+  env:
+    JBP_CONFIG_JAVA_MAIN: '{arguments: "--server.port=8090"}'
+  #  JAVA_OPTS : "--server.port=8090"
