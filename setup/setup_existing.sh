@@ -100,16 +100,6 @@ popd
 cp setup/manifest.yml ../gs-rest-service/complete
 echo  "SETUP - Successfully downloaded spring boot application"
 
-echo  "SETUP - Creating Edge Microgateway service and Deploying spring application to Cloud Foundry..."
-pushd ../gs-rest-service/complete
-cf push --no-start -m 512MB
-cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "tags": ["edgemicro"]}'
-cf bind-service spring_hello edgemicro_service
-popd
-echo  "SETUP - finished"
-
 echo "SETUP - Installing Diego-Enabler plugin..."
 cf install-plugin Diego-Enabler -r CF-Community
-cf enable-diego spring_hello
-cf start spring_hello
 echo "SETUP - Finished installing Diego Enabler."
