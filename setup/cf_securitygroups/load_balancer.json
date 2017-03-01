@@ -1,0 +1,14 @@
+[
+	{
+		"destination": "104.197.173.172",
+		"protocol": "all"
+	},
+	{
+		"destination": "192.168.56.101",
+		"protocol": "all"
+	},
+		{
+			"destination": "10.244.0.34",
+			"protocol": "all"
+		}
+	]
