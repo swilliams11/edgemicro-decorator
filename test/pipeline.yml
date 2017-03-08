@@ -10,4 +10,17 @@ jobs:
   - get: resource-edgemicro-decorator
     trigger: true
   - task: tests
-    file: resource-edgemicro-decorator/test/test-edgemicro-decorator-task.yml
+    config:
+      platform: linux
+
+      image_resource:
+        type: docker-image
+        source:
+          repository: bash
+          tag: latest
+
+      inputs:
+      - name: resource-edgemicro-decorator
+
+      run:
+        path: resource-edgemicro-decorator/test/test-edgemicro-decorator-task.sh
