@@ -3,6 +3,7 @@
 set -e
 set -x
 
+echo "testing"
 echo "test"
 # set the target
 #sudo route add -net 10.244.0.0/19 192.168.50.4
