@@ -45,7 +45,7 @@ pushd ../diego-release
   export SQL_FLAVOR='postgres'
   ./scripts/generate-bosh-lite-manifests
   # garden runc
-  bosh upload release https://bosh.io/d/github.com/cloudfoundry/garden-runc-release
+  #bosh upload release https://bosh.io/d/github.com/cloudfoundry/garden-runc-release
   # cflinuxfs
   bosh upload release https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-rootfs-release
   bosh deployment bosh-lite/deployments/diego.yml
