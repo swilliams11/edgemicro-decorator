@@ -1,5 +1,5 @@
 resources:
-- name: edgemicro-decorator
+- name: resource-edgemicro-decorator
   type: git
   source:
     uri: https://github.com/swilliams11/edgemicro-decorator
@@ -7,7 +7,7 @@ resources:
 jobs:
 - name: test-edgemicro-decorator
   plan:
-  - get: edgemicro-decorator
+  - get: resource-edgemicro-decorator
     trigger: true
   - task: tests
-    file: edgemicro-decorator/test/test-edgemicro-decorator-task.yml
+    file: resource-edgemicro-decorator/test/test-edgemicro-decorator-task.yml

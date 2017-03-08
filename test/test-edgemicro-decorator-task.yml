@@ -7,7 +7,7 @@ image_resource:
     tag: latest
 
 inputs:
-- name: edgemicro-decorator
+- name: resource-edgemicro-decorator
 
 run:
-  path: edgemicro-decorator/test/test-edgemicro-decorator-task.sh
+  path: resource-edgemicro-decorator/test/test-edgemicro-decorator-task.sh
