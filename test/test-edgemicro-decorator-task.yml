@@ -10,4 +10,4 @@ inputs:
 - name: edgemicro-decorator
 
 run:
-  path: ./edgemicro-decorator/test/test-edgemicro-decorator-task.sh
+  path: pwd && ls
