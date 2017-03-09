@@ -8,7 +8,7 @@ set -x
 #git clone https://github.com/swilliams11/edgemicro-decorator.git
 ls -la
 pwd
-dpkg -i resource-edgemicro-decorator/test/cf-cli-*.deb && apt-get install -f
+dpkg -i resource-edgemicro-decorator/test/cf-cli-installer_6.25.0_x86-64.deb && apt-get install -f
 ip route add 10.244.0.0/19 via 192.168.50.4 dev eth0
 cf api --skip-ssl-validation https://api.bosh-lite.com
 cf login --skip-ssl-validation -a https://api.bosh-lite.com -u admin
