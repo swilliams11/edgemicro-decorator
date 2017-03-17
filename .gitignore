@@ -39,3 +39,5 @@ jspm_packages
 gatling/target
 
 .DS_Store
+
+lib/demo-prod-config.yaml

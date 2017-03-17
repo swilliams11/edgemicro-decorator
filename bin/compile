@@ -39,6 +39,7 @@ cp $ROOT_DIR/lib/micro_config.py $BUILD_DIR/apigee_edge_micro
 cp $ROOT_DIR/lib/zz_micro_config.sh $BUILD_DIR/.profile.d
 cp $ROOT_DIR/lib/nodejs.sh $BUILD_DIR/.profile.d
 chmod +x $BUILD_DIR/.profile.d/*
+echo $EDGEMICRO_VERSION
 unzip $ROOT_DIR/lib/microgateway-$EDGEMICRO_VERSION.zip -d $BUILD_DIR/apigee_edge_micro > /dev/null
 
 ## TODO: Be smart about whether we need to add node, because the node buildpack
@@ -130,14 +131,15 @@ echo "$INIT_OUT"
 echo "$CONFIG_OUT"
 
 # the following commands move .edgemicro from .edgemicro to app/.edgemicro
-mkdir -p $BUILD_DIR/.edgemicro
-cp ~/.edgemicro/* $BUILD_DIR/.edgemicro
+#mkdir -p $BUILD_DIR/.edgemicro
+#cp ~/.edgemicro/* $BUILD_DIR/.edgemicro
 
 # copy the included yaml file to the .edgemicro directory
 # copy the plugins directory as well if they exist
 if [ "$YAML_INCLUDED" == "true" ]; then
   echo "copying yaml file from /lib directory..."
-  cp $ROOT_DIR/lib/$YAML_NAME $BUILD_DIR/.edgemicro/$YAML_NAME
+  #cp $ROOT_DIR/lib/$YAML_NAME $BUILD_DIR/.edgemicro/$YAML_NAME
+  cp $ROOT_DIR/lib/$YAML_NAME ~/.edgemicro/$YAML_NAME
   copy_plugins_folder
 fi
 
@@ -153,6 +155,10 @@ if [ "$ENABLE_CUSTOM_PLUGINS" == "true" ] && [ "$YAML_INCLUDED" == "false" ]; th
 else
   echo "custom plugins disabled..."
 fi
+
+# the following commands move .edgemicro from .edgemicro to app/.edgemicro
+mkdir -p $BUILD_DIR/.edgemicro
+cp ~/.edgemicro/* $BUILD_DIR/.edgemicro
 
 ## key/secret from config are used in start command
 MG_KEY=$(sed -n 's/key: \(.*\)/\1 /p' <<< "$CONFIG_OUT")
