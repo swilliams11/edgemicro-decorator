@@ -1,20 +1,36 @@
-# Cloud Foundry Test Scripts with Shell Scripts
+# Cloud Foundry Tests with Shell Scripts and Apickli
 This folder contains the test scripts for edgemicro-decorator.  This test script uses apickli to execute the test scripts.
 
+You must have pcf-dev running on your local machine.  
 
 ### Update config.sh
-Update config.sh with the appropriate values.
+Update config.sh with the appropriate values. This will execute all the tests against pcfdev.
+
+### Update Apickli test fixtures
+Make sure to change the client id and secret to the one for your Apigee org/env.
+`test/features/fixtures/token.json`
+
+### Update edgemicro.js Auth Token edgeAuthTokenEndpoint
+
+Make sure to update the following file with the correct Edge Auth token endpoint for Microgateway.  
+i.e http://mydomainorIP:9001/edgemicro-auth/token
+
+`test/features/step_definitions/edgemicro.js`
 
 ### Execute the test script
 
 1. `cd edgemicro-decorator/test`
 
-2. `./test-edgemicro-decorator-task.sh`
+2. `./test-edgemicro-decorator-apickli.sh all`
+
+Or you can run each test individually by entering the test name on the command line.
+`./test-edgemicro-decorator-apickli.sh test1`
+
+There are 7 tests in total.
+`test1` ... `test7`
 
 
-
-
-# Cloud Foundry Test with Apickli
+# Cloud Foundry Test with Concourse (Progress HALTED)
 This folder contains the test scripts for edgemicro-decorator.  This test script uses apickli to execute the test scripts.
 
 
