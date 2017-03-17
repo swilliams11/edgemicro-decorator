@@ -1,0 +1,11 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: { repository: concourse/bosh-cli }
+
+inputs:
+- name: resource-edgemicro-decorator
+
+run:
+  path: resource-edgemicro-decorator/test/test-edgemicro-decorator-task.sh

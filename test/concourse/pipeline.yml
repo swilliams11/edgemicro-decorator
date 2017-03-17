@@ -1,0 +1,16 @@
+resources:
+- name: resource-edgemicro-decorator
+  type: git
+  source:
+    uri: https://github.com/swilliams11/edgemicro-decorator
+    branch: automated_test2
+jobs:
+- name: test-edgemicro-decorator
+  plan:
+  - get: resource-edgemicro-decorator
+    trigger: true
+  - task: tests
+    file: resource-edgemicro-decorator/test/test-edgemicro-decorator-task.yml
+        #path: resource-edgemicro-decorator/test/test-edgemicro-decorator-task.sh
+        #path: cat
+        #args: [resource-edgemicro-decorator/test/test-edgemicro-decorator-task.sh]
