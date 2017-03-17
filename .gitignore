@@ -41,3 +41,4 @@ gatling/target
 .DS_Store
 
 lib/demo-prod-config.yaml
+test/configLocal.sh
