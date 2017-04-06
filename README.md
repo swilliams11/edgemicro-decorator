@@ -4,6 +4,15 @@ This is a [decorator](https://github.com/guidowb/meta-buildpack/blob/master/READ
 
 When this decorator and the [meta-buildpack](https://github.com/guidowb/meta-buildpack)
 is present in your Cloud Foundry deployment, you can select the 'Microgateway' service plan from the Apigee Edge service broker. With that service plan you can automatically add Apigee API Management via the Microgateway.
+# TOC
+* [Summary](#summary)
+* [PCF Dev](#pcf-dev)
+* [Prerequisites](#prerequisites)
+* [Select Node.js Version](#select-nodejs-version)
+* [Configuration steps](#what-you-need-to-know)
+* [Scale Cloud Foundry app up or down](#scale-updown
+* [Testing](#testing)
+* [Miscellaneous](#misc)
 
 # Summary
 The reason we developed an [Edge Microgateway](http://docs.apigee.com/microgateway/latest/overview-edge-microgateway) decorator is to allow customers running Cloud Foundry to protect their microservices with Apigee Edge, which supports OAuth 2.0, rate limiting with spike arrests and quotas, and analytics to monitor your run-time traffic.  The Edge Microgateway decorator will run inside the same container that executes the App, which significantly reduces the latency.  The following documentation describes how to test this decorator in a Bosh-lite instance protecting a sample Spring Boot application.
@@ -58,6 +67,10 @@ Snapshot of container memory consumption no requests
 state     since                    cpu    memory      disk      details
 #0   running   2016-12-13 11:49:49 AM   0.0%   0 of 512M   0 of 1G
 ```
+
+# PCF Dev
+If you want to quickly setup a Cloud Foundry environment on your local machine, then you
+can use [PCF Dev](https://pivotal.io/pcf-dev) instead. Follow the steps [here](https://pivotal.io/platform/pcf-tutorials/getting-started-with-pivotal-cloud-foundry-dev/introduction).  Once you complete the steps in that tutorial then you can continue with [step 8](#8-upload-edgemicro-decorator) below. Keep in mind that the domain for PCF Dev is different than the one below, so be sure to change the domain names in the examples accordingly.
 
 # Prerequisites
 1. You should have an Apigee Edge account (on-premises or public).
