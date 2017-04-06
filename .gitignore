@@ -42,3 +42,5 @@ gatling/target
 
 lib/demo-prod-config.yaml
 test/configLocal.sh
+
+gatling/src/test/scala/edgemicro/BasicSimulationprivate.scala
