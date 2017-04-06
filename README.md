@@ -10,7 +10,7 @@ is present in your Cloud Foundry deployment, you can select the 'Microgateway' s
 * [Prerequisites](#prerequisites)
 * [Select Node.js Version](#select-nodejs-version)
 * [Configuration steps](#what-you-need-to-know)
-* [Scale Cloud Foundry app up or down](#scale-updown
+* [Scale Cloud Foundry app up or down](#scale-updown)
 * [Testing](#testing)
 * [Miscellaneous](#misc)
 
