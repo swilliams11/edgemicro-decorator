@@ -9,6 +9,32 @@ is present in your Cloud Foundry deployment, you can select the 'Microgateway' s
 * [PCF Dev](#pcf-dev)
 * [Prerequisites](#prerequisites)
 * [Select Node.js Version](#select-nodejs-version)
+  1. [Deploy CF](#1-deploying-cloud-foundry)
+  2. [Install Go](#2-install-go)
+  3. [Install Spiff](#3-install-spiff)
+  4. [Deploy Cloud Foundry](#4-deploy-cloud-foundry)
+  5. [Add Routes](#5-add-routes)
+  6. [Setup CF API](#6-setup-the-cf-api)
+  7. [Login to CF API](#7-login-to-the-api)
+  8. [Upload Edgemicro Decorator](#8-upload-edgemicro-decorator)
+  9. [Upload meta-buildpack](#9-upload-meta-buildpack)
+  10. [Clone Sample Spring Boot Application](#10-clone-a-sample-spring-boot-application)
+  11. [Configure the service binding](#11-configure-a-service-binding)
+    * [Create a New Service](#create-the-new-service)
+    * [Update an Existing Service](#update-an-existing-service)
+    * [Enable Spike Arrest](#enable-spike-arrest)
+    * [Enable On-premises Deployment](#enable-on-premises-deployment)
+    * [Enable Custom Plugins](#enable-custom-plugins)
+    * [Enable Quota](#enable-quota)
+    * [Select Node.js Version](#select-nodejs-version-1)
+    * [Include org-env-config.yaml](#include-a-org-env-configyaml-file)
+    * [View All Services or an Existing Service](#view-all-servicesview-existing-service)
+  12. [Bind Service to App](#12-bind-a-service-to-an-app)
+  13. [Install Diego enabler Plugin](#13-install-diego-enabler-plugin)
+  14. [Deploy and Enable Diego](#14-deploy-to-cf-and-enable-diego)
+  15. [View the App Status](#15-view-the-status-of-the-app)
+  16. [Test the Service](#16-test-service)
+  17. [Edge Microgateway Test](#17-edge-microgateway-test)
 * [Configuration steps](#what-you-need-to-know)
 * [Scale Cloud Foundry app up or down](#scale-updown)
 * [Testing](#testing)
@@ -81,7 +107,7 @@ can use [PCF Dev](https://pivotal.io/pcf-dev) instead. Follow the steps [here](h
 3. You should install [Bosh-lite](https://github.com/cloudfoundry/bosh-lite).
 
 # Select Node.js Version
-The default Node.js version that is used is `node-v6.9.4-linux-x64.tar.xz`.  This latest commit allows you to select the Node.js version, however, you must include the `tar.xz` file in the `lib` directory and you also must include the version in the `edgemicro` service. Read the [Select Node.js Version](#select-nodejs-version) section for details.
+This latest commit allows you to select the Node.js version, however, you must include the `tar.xz` file in the `lib` directory and you also must include the version in the `edgemicro` service. Read the [Select Node.js Version](#select-nodejs-version) section for details.
 
 # What You Need To Know
 The following steps will provide you with all the information that you need to setup Cloud Foundry in Bosh-lite.  
@@ -267,7 +293,7 @@ Enter the following command into the Procfile.
 web: java -jar build/libs/gs-rest-service-0.1.0.jar --server.port=8090
 ```
 
-## 11.a Configure a Service binding
+## 11 Configure a Service binding
 https://docs.cloudfoundry.org/devguide/services/user-provided.html
 
 The following command allows you to configure a [service](https://docs.cloudfoundry.org/devguide/services/user-provided.html) in CF to store the Microgateway configuration (org/env, org credentials) separate from the Spring application.
@@ -278,15 +304,26 @@ You must modify the service attributes below before you execute the `cf cups` co
 * user - Apigee Org Administrator username
 * pass - Apigee Org Administrator password
 
+### TOC
+* [Create a New Service](#create-the-new-service)
+* [Update an Existing Service](#update-an-existing-service)
+* [Enable Spike Arrest](#enable-spike-arrest)
+* [Enable On-premises Deployment](#enable-on-premises-deployment)
+* [Enable Custom Plugins](#enable-custom-plugins)
+* [Enable Quota](#enable-quota)
+* [Select Node.js Version](#select-nodejs-version-1)
+* [Include org-env-config.yaml](#include-a-org-env-configyaml-file)
+* [View All Services or an Existing Service](#view-all-servicesview-existing-service)
+
 ### Create the new service
 ```
-cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "tags": ["edgemicro"]}'
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "tags": ["edgemicro"]}'
 ```
 
 ### Update an existing service
 You only have to execute this command if you want to update an existing service.  
 ```
-cf uups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "tags": ["edgemicro"]}'
+cf uups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "tags": ["edgemicro"]}'
 ```
 
 ### Enable Spike Arrest
@@ -297,13 +334,13 @@ Spike arrest will always be added after the `oauth` plugin in the `plugin sequen
 The default `buffersize` is zero.
 
 ```
-cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30"}, "tags": ["edgemicro"]}'
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30"}, "tags": ["edgemicro"]}'
 ```
 
 #### Spike Arrest with buffersize
 The `buffersize` is set.
 ```
-cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30", "buffersize": "100"}, "tags": ["edgemicro"]}'
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30", "buffersize": "100"}, "tags": ["edgemicro"]}'
 ```
 
  View the [spike arrest plugin documentation](http://docs.apigee.com/microgateway/latest/use-plugins#usingthespikearrestplugin) for more details regarding configuration options.
@@ -313,7 +350,7 @@ Enable on-premises configuration option with the following command.
 * virtual_host is a comma separated list of virtual hosts within your Edge environment. (i.e "default,secure")
 
 ```
-cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "onpremises": "true", "onprem_config" : {"runtime_url": "http://192.168.56.101:9001", "mgmt_url" : "http://192.168.56.101:8080", "virtual_host" : "default"}, "tags": ["edgemicro"]}'
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "onpremises": "true", "onprem_config" : {"runtime_url": "http://192.168.56.101:9001", "mgmt_url" : "http://192.168.56.101:8080", "virtual_host" : "default"}, "tags": ["edgemicro"]}'
 ```
 
 View the [on premises documentation](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#part1configureedgemicrogateway-apigeeprivatecloudconfigurationsteps) for more details regarding configuration options.
@@ -428,7 +465,7 @@ Enable the custom plugins by including `enable_custom_plugins` and `plugins` pro
 * Notice that `oauth` is included and it must be there.
 
 ```
-cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_custom_plugins":"true","plugins":"oauth,plugin1,plugin2", "tags": ["edgemicro"]}'
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_custom_plugins":"true","plugins":"oauth,plugin1,plugin2", "tags": ["edgemicro"]}'
 ```
 
 #### With OAuth and Spike Arrest
@@ -436,7 +473,7 @@ Enable the custom plugins by including `enable_custom_plugins` and `plugins` pro
 * Notice that `oauth` and `spikearrest` are included and they both must be there for this to work correctly.
 
 ```
-cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_custom_plugins":"true","plugins":"oauth,spikearrest,plugin1,plugin2", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30"}, "tags": ["edgemicro"]}'
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_custom_plugins":"true","plugins":"oauth,spikearrest,plugin1,plugin2", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30"}, "tags": ["edgemicro"]}'
 ```
 
 ### Enable Quota
@@ -444,7 +481,7 @@ Enable the quota plugin by including `enable_quota` property set to `true`.
 * Quota will be place after the OAuth plugin.
 
 ```
-cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_quota":"true", "tags": ["edgemicro"]}'
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_quota":"true", "tags": ["edgemicro"]}'
 ```
 
 ##### Enable Quota and Spike Arrest
@@ -452,10 +489,22 @@ Enable the quota plugin by including `enable_quota` property set to `true`.
 * Quota will always be placed after the spike arrest.  
 
 ```
-cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_quota":"true", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30"}, "tags": ["edgemicro"]}'
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_quota":"true", "enable_spike_arrest": "true", "spike_arrest_config" : {"timeunit": "minute", "allow" : "30"}, "tags": ["edgemicro"]}'
+```
+
+### Select Node.js Version - Decorator Installs Node
+Use this property to download Node.js from the Nodejs.org site.  Select the Node.js version as shown below.  
+Make sure that Node.js version number is specified in the `nodejs_version_number` property.
+**NOTE: You can either enter this property or nodejs_version**
+
+```
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080","nodejs_version_number": "6.10.2", "tags": ["edgemicro"]}'
 ```
 
 ### Select Node.js Version
+**NOTE: Use the preferred approach above, since it will install Node.js for you. If you use the property below, then you must
+include the `tar.xz` file in the `lib` directory of the edgemicro-decorator.**
+
 Select the Node.js version as shown below.  Make sure that Node.js `tar.xz` file specified in the `nodejs_version` is also included in the `lib` directory.
 
 ```
@@ -475,7 +524,7 @@ Include the following properties as shown below.
 
 Example command shown below.
 ```
-cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "yaml_included":"true", "yaml_name":"demo-test-config.yaml", "tags": ["edgemicro"]}'
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "yaml_included":"true", "yaml_name":"demo-test-config.yaml", "tags": ["edgemicro"]}'
 ```
 
 ### View all services/View existing service
@@ -484,7 +533,7 @@ cf services
 cf service edgemicro_service
 ```
 
-## 11.b Bind a Service to an App
+## 12 Bind a Service to an App
 You must bind the service to the spring_hello app so that the Edge Microgateway configuration values are available to Edge Microgateway_decorator during startup.  
 ```
 cf push --no-start
@@ -551,7 +600,7 @@ System-Provided:
 ```
 
 
-## 12. Install Diego Enabler Plugin
+## 13. Install Diego Enabler Plugin
 
 ### Deploy to diego-release CF 2nd Attempt - WORKS
 This section discusses the second attempt to deploy the Diego architecture in CF. I followed the instructions listed here.
@@ -616,7 +665,7 @@ cf push spring_hello
 
 
 
-## 13. Deploy to CF and enable Diego
+## 14. Deploy to CF and enable Diego
 Make sure your CF target is set (completed in step 7) and then push the spring_hello application.  At this point when you deploy to CF, the application is deployed to the DEA (Droplet Execution Agent) architecture.  Therefore, you must enable Diego for the app to run on the diego architecture.  If you don't enable it then the meta-buildpack does not get applied (need to troubleshoot why).
 
 Edgemicro v2.1.2
@@ -650,12 +699,12 @@ Overview of process execution when you execute the `cf start spring_hello` comma
 * Staging container is destroyed.
 * CF creates a new container which starts Edge Microgateway and then starts the Spring application.
 
-## 13.b View the status of the app
+## 15. View the status of the app
 ```
 cf app spring_hello
 ```
 
-## 14. Test Service
+## 16. Test Service
 If you copy the URL into your browser you should receive an error from Edge Microgateway stating that you are missing the authorization header.  
 
 Paste the link below in your browser.
@@ -667,7 +716,7 @@ OR
 curl http://rest-service.bosh-lite.com/greeting
 ```
 
-## 15. Edge Microgateway Test
+## 17. Edge Microgateway Test
 In order to send a valid request, you must obtain a valid access token first.
 
 ### a. Request JWT
