@@ -9,6 +9,7 @@ is present in your Cloud Foundry deployment, you can select the 'Microgateway' s
 * [PCF Dev](#pcf-dev)
 * [Prerequisites](#prerequisites)
 * [Select Node.js Version](#select-nodejs-version)
+* [Configuration steps](#what-you-need-to-know)
   1. [Deploy CF](#1-deploying-cloud-foundry)
   2. [Install Go](#2-install-go)
   3. [Install Spiff](#3-install-spiff)
@@ -20,22 +21,21 @@ is present in your Cloud Foundry deployment, you can select the 'Microgateway' s
   9. [Upload meta-buildpack](#9-upload-meta-buildpack)
   10. [Clone Sample Spring Boot Application](#10-clone-a-sample-spring-boot-application)
   11. [Configure the service binding](#11-configure-a-service-binding)
-    * [Create a New Service](#create-the-new-service)
-    * [Update an Existing Service](#update-an-existing-service)
-    * [Enable Spike Arrest](#enable-spike-arrest)
-    * [Enable On-premises Deployment](#enable-on-premises-deployment)
-    * [Enable Custom Plugins](#enable-custom-plugins)
-    * [Enable Quota](#enable-quota)
-    * [Select Node.js Version](#select-nodejs-version-1)
-    * [Include org-env-config.yaml](#include-a-org-env-configyaml-file)
-    * [View All Services or an Existing Service](#view-all-servicesview-existing-service)
+      * [Create a New Service](#create-the-new-service)
+      * [Update an Existing Service](#update-an-existing-service)
+      * [Enable Spike Arrest](#enable-spike-arrest)
+      * [Enable On-premises Deployment](#enable-on-premises-deployment)
+      * [Enable Custom Plugins](#enable-custom-plugins)
+      * [Enable Quota](#enable-quota)
+      * [Select Node.js Version](#select-nodejs-version-1)
+      * [Include org-env-config.yaml](#include-a-org-env-configyaml-file)
+      * [View All Services or an Existing Service](#view-all-servicesview-existing-service)
   12. [Bind Service to App](#12-bind-a-service-to-an-app)
   13. [Install Diego enabler Plugin](#13-install-diego-enabler-plugin)
   14. [Deploy and Enable Diego](#14-deploy-to-cf-and-enable-diego)
   15. [View the App Status](#15-view-the-status-of-the-app)
   16. [Test the Service](#16-test-service)
   17. [Edge Microgateway Test](#17-edge-microgateway-test)
-* [Configuration steps](#what-you-need-to-know)
 * [Scale Cloud Foundry app up or down](#scale-updown)
 * [Testing](#testing)
 * [Miscellaneous](#misc)
@@ -107,7 +107,7 @@ can use [PCF Dev](https://pivotal.io/pcf-dev) instead. Follow the steps [here](h
 3. You should install [Bosh-lite](https://github.com/cloudfoundry/bosh-lite).
 
 # Select Node.js Version
-This latest commit allows you to select the Node.js version, however, you must include the `tar.xz` file in the `lib` directory and you also must include the version in the `edgemicro` service. Read the [Select Node.js Version](#select-nodejs-version) section for details.
+This latest commit allows you to select the Node.js version, however, you must include the `tar.xz` file in the `lib` directory and you also must include the version in the `edgemicro` service. [See below](#select-nodejs-version-1) for details.
 
 # What You Need To Know
 The following steps will provide you with all the information that you need to setup Cloud Foundry in Bosh-lite.  
