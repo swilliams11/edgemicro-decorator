@@ -9,10 +9,13 @@ ENV_DIR=$3
 #NODE_VERSION=node-v7.4.0-linux-x64.tar.xz
 #NODE_VERSION_FOLDER=node-v7.4.0-linux-x64
 export PYTHONPATH="${PYTHONPATH}:$ROOT_DIR/lib"
+
+NODE_VERSION_NUMBER_EXISTS="$(python -c 'from micro_config import nodejsVersionNumberExists; nodejsVersionNumberExists()')"
+NODE_VERSION_NUMBER="$(python -c 'from micro_config import getNodejsVersionNumber; getNodejsVersionNumber()')"
 NODE_VERSION="$(python -c 'from micro_config import getNodejsVersion; getNodejsVersion()')"
 NODE_VERSION_FOLDER="$(python -c 'from micro_config import nodejsVersionFolderName; nodejsVersionFolderName()')"
 
-## retrieve confige/org values from app service binding
+## retrieve config/org values from app service binding
 EDGEMICRO_VERSION="$(python -c 'from micro_config import getEdgemicroVersion; getEdgemicroVersion()')"
 EDGEMICRO_PORT="$(python -c 'from micro_config import getEdgemicroPort; getEdgemicroPort()')"
 YAML_INCLUDED="$(python -c 'from micro_config import yamlIncluded; yamlIncluded()')"
@@ -53,14 +56,23 @@ if [ "$YAML_INCLUDED" == "true" ] && [ ! -f "$ROOT_DIR/lib/$YAML_NAME" ]; then
   exit 1
 fi
 
-## check if the file actually exists
-if [ ! -f "$ROOT_DIR/lib/$NODE_VERSION" ]; then
-  echo "Node.js file does not exist in lib directory. Exiting..."
-  exit 1
+## install node only if the nodejs_version_number property exists
+if [ "$NODE_VERSION_NUMBER_EXISTS" = true ]; then
+  echo "fetching node.js version $NODE_VERSION_NUMBER from nodejs.org."
+  wget "https://nodejs.org/dist/v$NODE_VERSION_NUMBER/node-v$NODE_VERSION_NUMBER-linux-x64.tar.xz" -P /tmp
+  tar xJf /tmp/$NODE_VERSION -C /tmp
+else # does not exist then check the nodejs_version property instead
+  ## check if the file actually exists
+  if [ ! -f "$ROOT_DIR/lib/$NODE_VERSION" ]; then
+    echo "Node.js file does not exist in lib directory. Exiting..."
+    exit 1
+  fi
+
+  ## node install
+  tar xJf $ROOT_DIR/lib/$NODE_VERSION -C /tmp
 fi
 
-## node install
-tar xJf $ROOT_DIR/lib/$NODE_VERSION -C /tmp
+
 #rm -rf $BUILD_DIR/.heroku/node/*
 rm -rf $BUILD_DIR/node/*
 
