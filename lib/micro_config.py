@@ -5,7 +5,6 @@ import json
 import urllib2
 import base64
 
-nodeDefaultVersion = 'node-v6.9.4-linux-x64.tar.xz'
 nodeFileExts = ['.tar.xz', '.tar.gz']
 
 def main():
@@ -61,12 +60,36 @@ def getAppName():
 	# json.dump(appinfo, sys.stderr, indent=4)
 	print appinfo['uris'][0].replace('.', '-')
 
+def nodejsVersionNumberExists():
+	creds = getEdgemicroServiceCredential()
+	nodeVersion = creds.get('nodejs_version_number')
+	if nodeVersion == None:
+		print 'false'
+	else:
+		print 'true'
+
+
+# get the node version number 6.9.4
+# version is specified as 6.9.1, but then converted to
+# node-v6.9.1-linux-x64.tar.xz
+#
+def getNodejsVersionNumber():
+	creds = getEdgemicroServiceCredential()
+	nodeVersion = creds.get('nodejs_version_number')
+	print nodeVersion
+
+
 # get Node.js version
-# the default version is 6.9.4
+# version is specified as node-v6.9.1-linux-x64.tar.xz
 #
 def getNodejsVersion():
 	creds = getEdgemicroServiceCredential()
-	nodeVersion = creds.get('nodejs_version', nodeDefaultVersion)
+	nodeVersion = creds.get('nodejs_version_number')
+	if nodeVersion != None:
+		nodeVersion = getNodeInstallFileName(nodeVersion)
+	else:
+		nodeVersion = creds.get('nodejs_version')
+
 	print nodeVersion
 
 
@@ -75,7 +98,12 @@ def getNodejsVersion():
 #
 def nodejsVersionFolderName():
 	creds = getEdgemicroServiceCredential()
-	nodeVersion = creds.get('nodejs_version', nodeDefaultVersion)
+	nodeVersion = creds.get('nodejs_version_number')
+	if nodeVersion == None:
+		nodeVersion = creds.get('nodejs_version')
+	else:
+		nodeVersion = getNodeInstallFileName(nodeVersion)
+
 	folderName = ''
 	for ext in nodeFileExts:
 		if nodeVersion.endswith(ext.strip()):
@@ -88,6 +116,8 @@ def nodejsVersionFolderName():
 	else:
 		print folderName
 
+def getNodeInstallFileName(version):
+	return 'node-v' + version + '-linux-x64.tar.xz'
 
 # get the enable_custom_plugins property from the credentials object
 #
