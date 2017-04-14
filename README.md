@@ -4,6 +4,9 @@ This is a [decorator](https://github.com/guidowb/meta-buildpack/blob/master/READ
 
 When this decorator and the [meta-buildpack](https://github.com/guidowb/meta-buildpack)
 is present in your Cloud Foundry deployment, you can select the 'Microgateway' service plan from the Apigee Edge service broker. With that service plan you can automatically add Apigee API Management via the Microgateway.
+
+Try the [README-SHORT.md](https://github.com/swilliams11/edgemicro-decorator/blob/master/README-SHORT.md) version instead.
+
 # TOC
 * [Summary](#summary)
 * [PCF Dev](#pcf-dev)
