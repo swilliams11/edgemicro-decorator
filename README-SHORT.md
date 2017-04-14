@@ -1,4 +1,4 @@
-# edgemicro-decorator short
+# edgemicro-decorator short version
 This is the short version of the edgemicro-decorator documentation.
 
 1. You must have access to Edge. And you must complete the following.
@@ -8,7 +8,7 @@ This is the short version of the edgemicro-decorator documentation.
 
   These steps are detailed [here](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#Part2).
 
-  The only difference is that your `Proxy Base Path` will be `edgemicro_hello` and
+  The only difference is that your `Proxy Base Path` will be `/edgemicro_hello` and
   your `Existing API` will be http://localhost:8090.
 
 2. Install and start [PCF Dev](https://pivotal.io/platform/pcf-tutorials/getting-started-with-pivotal-cloud-foundry-dev/introduction).
@@ -63,7 +63,7 @@ cf restage spring_hello
 
 8. Test the service.
 
-Will fail without an valid token.
+Will fail without a valid token.
 ```
 curl http://rest-service.local.pcfdev.io/edgemicro_hello
 ```
@@ -73,7 +73,7 @@ Get a valid token.
 curl -X POST "http://CHANGEME/edgemicro-auth/token" -H "Content-type: application/json" -d '{"client_id":"CHANGEME","client_secret":"CHANGEME","grant_type":"client_credentials"}'
 ```
 
-Send request to CF.
+Send request to CF with a valid token.
 ```
 curl http://rest-service.local.pcfdev.io/edgemicro_hello -H "Authorization: Bearer CHANGEME_JWT"
 ```
