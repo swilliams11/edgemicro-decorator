@@ -13,7 +13,19 @@ This is the short version of the edgemicro-decorator documentation.
 
 2. Install and start [PCF Dev](https://pivotal.io/platform/pcf-tutorials/getting-started-with-pivotal-cloud-foundry-dev/introduction).
 
-When you finished with the step above you will login to PCF Dev.
+NOTE: you can stop after you execute the `cf dev start` command.
+
+Next execute the following command to login to PCF Dev:
+```
+cf login -a api.local.pcfdev.io --skip-ssl-validation
+```
+
+And enter the following when prompted.
+```
+API endpoint:  api.local.pcfdev.io   
+Email>     admin
+Password>  admin
+```
 
 3. Clone meta-buildpack decorator and upload it to PCF Dev.
 ```
@@ -37,6 +49,7 @@ cd edgemicro-decorator
 git clone https://github.com/spring-guides/gs-rest-service.git
 cd gs-rest-service/complete
 ```
+
 You must modify the `manifest.yaml` file to include the line below.
 ```
 env:
