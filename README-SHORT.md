@@ -69,6 +69,11 @@ However, you must update all the fields with CHANGEME.
 cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"CHANGEME", "env":"CHANGEME", "user":"CHANGEME","pass":"CHANGEME", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "onpremises": "true", "onprem_config" : {"runtime_url": "http://CHANGEME:9001", "mgmt_url" : "http://CHANGEME:8080", "virtual_host" : "default"}, "tags": ["edgemicro"]}'
 ```
 
+Bind the service to the Cloud Foundry App
+```
+cf bind-service spring_hello edgemicro_service
+```
+
 7. Restart the spring_hello service
 ```
 cf restage spring_hello
