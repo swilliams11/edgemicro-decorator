@@ -51,10 +51,17 @@ git clone https://github.com/spring-guides/gs-rest-service.git
 cd gs-rest-service/complete
 ```
 
-You must modify the `manifest.yaml` file to include the line below.
+You must modify the `manifest.yaml` file with the changes shown below.
 ```
+domain: local.pcfdev.io
+
 env:
   JBP_CONFIG_JAVA_MAIN: '{arguments: "--server.port=8090"}'
+```
+
+Build the jar file:
+```
+./gradlew build
 ```
 
 Then push the application to PCF Dev and enable diego.
