@@ -31,6 +31,7 @@ Password>  admin
 ```
 git clone git@github.com:cf-platform-eng/meta-buildpack.git
 cd meta-buildpack
+./build
 ./upload
 ```
 
