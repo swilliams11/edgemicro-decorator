@@ -53,6 +53,7 @@ cd gs-rest-service/complete
 
 You must modify the `manifest.yaml` file with the changes shown below.
 ```
+name: spring_hello
 domain: local.pcfdev.io
 
 env:
