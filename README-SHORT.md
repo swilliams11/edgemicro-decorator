@@ -65,6 +65,12 @@ Build the jar file:
 ```
 
 Then push the application to PCF Dev and enable diego.
+
+Make sure to install the Diego plugin first.  
+```
+https://github.com/cloudfoundry-incubator/Diego-Enabler
+```
+
 ```
 cf push --no-start -m 512M
 cf enable-diego spring_hello
