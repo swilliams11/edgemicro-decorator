@@ -9,6 +9,7 @@ Try the [README-SHORT.md](https://github.com/swilliams11/edgemicro-decorator/blo
 
 # TOC
 * [Summary](#summary)
+* [Support](#support)
 * [PCF Dev](#pcf-dev)
 * [Prerequisites](#prerequisites)
 * [Select Node.js Version](#select-nodejs-version)
@@ -96,6 +97,9 @@ Snapshot of container memory consumption no requests
 state     since                    cpu    memory      disk      details
 #0   running   2016-12-13 11:49:49 AM   0.0%   0 of 512M   0 of 1G
 ```
+
+# Support
+For support on the Edgemicro-decorator, please create an issue directly against this repository.  Please do not submit a support ticket with Apigee because they are not supporting this product.  We are currently in the process of transferring this project to our engineering team and updating the developer experience.
 
 # PCF Dev
 If you want to quickly setup a Cloud Foundry environment on your local machine, then you
