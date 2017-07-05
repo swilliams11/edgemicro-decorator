@@ -15,7 +15,7 @@ def main():
 	# 	get_spring_cloud_config(service, appinfo)
 
 def detect():
-	print 'detect called'
+	print 'detect() called'
 	appinfo = get_application_info()
 	service = find_edgemicro_service(appinfo)
 	# print service

@@ -8,4 +8,4 @@ BUILD_DIR=$1
 export PYTHONPATH="${PYTHONPATH}:$ROOT_DIR/lib"
 echo "edgemicro-decorator DECORATE called!"
 python -c 'from micro_config import detect; detect()'
-exit 0
+#exit 0

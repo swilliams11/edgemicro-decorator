@@ -54,6 +54,8 @@ Please note the following:
 * Apps that use the HTTP route are required to listen on port 8080
 * This repo uses Edge Microgateway version 2.3.1
 
+## What if I want some Cloud Foundry apps to be protected by Edge Microgateway and the other apps to be unprotected?
+If you don't bind an Cloud Foundry app to the `edgemicro_service`, then the edgemicro-decorator will not execute for that app.  
 
 ## What is the additional space required for my container?
 Edge Microgateway is a Node.js application that includes other node libraries as well. Therefore, the total additional space required is the total space for the Node.js runtime, the core Microgateway and all of the required node modules.  
