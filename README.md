@@ -718,11 +718,11 @@ If you copy the URL into your browser you should receive an error from Edge Micr
 
 Paste the link below in your browser.
 ```
-http://rest-service.bosh-lite.com/greeting
+http://rest-service.bosh-lite.com/edgemicro_hello/greeting
 ```
 OR
 ```
-curl http://rest-service.bosh-lite.com/greeting
+curl http://rest-service.bosh-lite.com/edgemicro_hello/greeting
 ```
 
 ## 17. Edge Microgateway Test
@@ -732,6 +732,12 @@ In order to send a valid request, you must obtain a valid access token first.
 Request a JWT from your OAuth proxy deployed to Edge.  This OAuth proxy is configured automatically when the Edge Microgateway-decorator executes the `init` step.  Make sure to include the client_id and secret from your Apigee product in the curl command below.
 ```
 curl -X POST -H "Content-type: application/json" http://org-env.apigee.net/edgemicro-auth/token -d '{"client_id":"client_id","client_secret":"client_secret","grant_type":"client_credentials"}' -v
+```
+
+OR
+
+```
+edgemicro token get -o [org] -e [env] -i [client_id] -s [client_secret]
 ```
 
 Mocked Response (actual JWT is much longer):
