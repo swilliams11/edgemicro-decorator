@@ -749,7 +749,7 @@ Mocked Response (actual JWT is much longer):
 ```
 curl -X GET \
 -H "Authorization: Bearer qOoFoQ4hFQ" \
-http://rest-service.bosh-lite.com/greeting/ -v
+http://rest-service.bosh-lite.com/edgemicro_hello/greeting/ -v
 ```
 
 # Scale Up/Down

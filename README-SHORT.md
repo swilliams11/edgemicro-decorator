@@ -108,6 +108,12 @@ Get a valid token.
 curl -X POST "http://CHANGEME/edgemicro-auth/token" -H "Content-type: application/json" -d '{"client_id":"CHANGEME","client_secret":"CHANGEME","grant_type":"client_credentials"}'
 ```
 
+OR
+
+```
+edgemicro token get -o [org] -e [env] -i [client_id] -s [client_secret]
+```
+
 Send request to CF with a valid token.
 ```
 curl http://rest-service.local.pcfdev.io/edgemicro_hello -H "Authorization: Bearer CHANGEME_JWT"
