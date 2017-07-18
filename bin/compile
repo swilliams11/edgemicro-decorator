@@ -23,6 +23,41 @@ YAML_NAME="$(python -c 'from micro_config import yamlName; yamlName()')"
 
 ######## Functions
 
+function install_nodejs
+{
+  ## install node only if the nodejs_version_number property exists
+  if [ "$NODE_VERSION_NUMBER_EXISTS" = true ]; then
+    echo "fetching node.js version $NODE_VERSION_NUMBER from nodejs.org."
+    wget "https://nodejs.org/dist/v$NODE_VERSION_NUMBER/node-v$NODE_VERSION_NUMBER-linux-x64.tar.xz" -P /tmp
+    tar xJf /tmp/$NODE_VERSION -C /tmp
+  else # does not exist then check the nodejs_version property instead
+    ## check if the file actually exists
+    if [ ! -f "$ROOT_DIR/lib/$NODE_VERSION" ]; then
+      echo "Node.js file does not exist in lib directory. Exiting..."
+      exit 1
+    fi
+
+    ## node install
+    tar xJf $ROOT_DIR/lib/$NODE_VERSION -C /tmp
+  fi
+
+  #rm -rf $BUILD_DIR/.heroku/node/*
+  rm -rf $BUILD_DIR/node/*
+
+  #echo "ls of /tmp/app"
+  #echo `ls $BUILD_DIR`
+  mkdir -p $BUILD_DIR/node
+
+  # check if the folder actually exists
+  if [ ! -d "/tmp/$NODE_VERSION_FOLDER" ]; then
+    echo "The folder to which Node.js was extracted does not exist in tmp directory. Exiting..."
+    echo "folder is /tmp/$NODE_VERSION_FOLDER"
+    exit 1
+  fi
+  mv /tmp/$NODE_VERSION_FOLDER/* $BUILD_DIR/node
+  chmod +x $BUILD_DIR/node/bin/*
+}
+
 # copy the plugins folder only if it exists.
 function copy_plugins_folder
 {
@@ -56,6 +91,44 @@ function configure_on_premise
 
 }
 
+function enable_spike_arrest_and_quota
+{
+  if [ "$YAML_INCLUDED" == "false" ]; then
+    python -c 'from micro_config import enableSpikeArrest; enableSpikeArrest()'
+    python -c 'from micro_config import enableQuota; enableQuota()'
+  fi
+}
+
+function configure_yaml_file
+{
+  # copy the included yaml file to the .edgemicro directory
+  # copy the plugins directory as well if they exist
+  if [ "$YAML_INCLUDED" == "true" ]; then
+    echo "copying yaml file from /lib directory..."
+    #cp $ROOT_DIR/lib/$YAML_NAME $BUILD_DIR/.edgemicro/$YAML_NAME
+    cp $ROOT_DIR/lib/$YAML_NAME ~/.edgemicro/$YAML_NAME
+    copy_plugins_folder
+  fi
+}
+
+function configure_custom_plugins
+{
+  ENABLE_CUSTOM_PLUGINS="$(python -c 'from micro_config import getEnableCustomPlugins; getEnableCustomPlugins()')"
+  echo "ENABLE_CUSTOM_PLUGINS is $ENABLE_CUSTOM_PLUGINS"
+  # custom plugins
+  # use this feature when the YAML is NOT included.
+  if [ "$ENABLE_CUSTOM_PLUGINS" == "true" ] && [ "$YAML_INCLUDED" == "false" ]; then
+    echo "custom plugins enabled..."
+    #cp -r $ROOT_DIR/lib/plugins $BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/
+    copy_plugins_folder
+    echo "copied plugins to edgemicro directory"
+    PLUGINS="$(python -c 'from micro_config import enableCustomPlugins; enableCustomPlugins()')"
+    echo "$PLUGINS"
+  else
+    echo "custom plugins disabled..."
+  fi
+}
+
 ######## Main
 
 mkdir -p $BUILD_DIR/apigee_edge_micro
@@ -78,38 +151,8 @@ if [ "$YAML_INCLUDED" == "true" ] && [ ! -f "$ROOT_DIR/lib/$YAML_NAME" ]; then
   exit 1
 fi
 
-## install node only if the nodejs_version_number property exists
-if [ "$NODE_VERSION_NUMBER_EXISTS" = true ]; then
-  echo "fetching node.js version $NODE_VERSION_NUMBER from nodejs.org."
-  wget "https://nodejs.org/dist/v$NODE_VERSION_NUMBER/node-v$NODE_VERSION_NUMBER-linux-x64.tar.xz" -P /tmp
-  tar xJf /tmp/$NODE_VERSION -C /tmp
-else # does not exist then check the nodejs_version property instead
-  ## check if the file actually exists
-  if [ ! -f "$ROOT_DIR/lib/$NODE_VERSION" ]; then
-    echo "Node.js file does not exist in lib directory. Exiting..."
-    exit 1
-  fi
+install_nodejs
 
-  ## node install
-  tar xJf $ROOT_DIR/lib/$NODE_VERSION -C /tmp
-fi
-
-
-#rm -rf $BUILD_DIR/.heroku/node/*
-rm -rf $BUILD_DIR/node/*
-
-#echo "ls of /tmp/app"
-#echo `ls $BUILD_DIR`
-mkdir -p $BUILD_DIR/node
-
-# check if the folder actually exists
-if [ ! -d "/tmp/$NODE_VERSION_FOLDER" ]; then
-  echo "The folder to which Node.js was extracted does not exist in tmp directory. Exiting..."
-  echo "folder is /tmp/$NODE_VERSION_FOLDER"
-  exit 1
-fi
-mv /tmp/$NODE_VERSION_FOLDER/* $BUILD_DIR/node
-chmod +x $BUILD_DIR/node/bin/*
 #ln -s $BUILD_DIR/node/bin/node /usr/local/bin/node
 #ln -s $BUILD_DIR/node/bin/npm /usr/local/bin/npm
 
@@ -125,10 +168,7 @@ ORGENV="$(python -c 'from micro_config import getOrgEnv; getOrgEnv()')"
 export BUILD_DIR=$BUILD_DIR
 echo `printenv | grep PATH`
 #python -c 'from micro_config import updateSpikeArrest; updateSpikeArrest()'
-if [ "$YAML_INCLUDED" == "false" ]; then
-  python -c 'from micro_config import enableSpikeArrest; enableSpikeArrest()'
-  python -c 'from micro_config import enableQuota; enableQuota()'
-fi
+enable_spike_arrest_and_quota
 
 ## configure edge microgateway
 #cd $BUILD_DIR/apigee_edge_micro/apigee-edge-micro-2.0.4/cli/
@@ -151,29 +191,8 @@ configure_on_premise
 #mkdir -p $BUILD_DIR/.edgemicro
 #cp ~/.edgemicro/* $BUILD_DIR/.edgemicro
 
-# copy the included yaml file to the .edgemicro directory
-# copy the plugins directory as well if they exist
-if [ "$YAML_INCLUDED" == "true" ]; then
-  echo "copying yaml file from /lib directory..."
-  #cp $ROOT_DIR/lib/$YAML_NAME $BUILD_DIR/.edgemicro/$YAML_NAME
-  cp $ROOT_DIR/lib/$YAML_NAME ~/.edgemicro/$YAML_NAME
-  copy_plugins_folder
-fi
-
-ENABLE_CUSTOM_PLUGINS="$(python -c 'from micro_config import getEnableCustomPlugins; getEnableCustomPlugins()')"
-echo "ENABLE_CUSTOM_PLUGINS is $ENABLE_CUSTOM_PLUGINS"
-# custom plugins
-# use this feature when the YAML is NOT included.
-if [ "$ENABLE_CUSTOM_PLUGINS" == "true" ] && [ "$YAML_INCLUDED" == "false" ]; then
-  echo "custom plugins enabled..."
-  #cp -r $ROOT_DIR/lib/plugins $BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/
-  copy_plugins_folder
-  echo "copied plugins to edgemicro directory"
-  PLUGINS="$(python -c 'from micro_config import enableCustomPlugins; enableCustomPlugins()')"
-  echo "$PLUGINS"
-else
-  echo "custom plugins disabled..."
-fi
+configure_yaml_file
+configure_custom_plugins
 
 # the following commands move .edgemicro from .edgemicro to app/.edgemicro
 mkdir -p $BUILD_DIR/.edgemicro
@@ -189,8 +208,6 @@ echo "$MG_SECRET" > $BUILD_DIR/secret.txt
 LOCAL_APP="$(python -c 'from micro_config import getAppName; getAppName()')"
 LOCAL_PATH="/"
 LOCAL_TARGET="http://localhost:8999"
-
-
 
 echo "$ORGENV"
 echo "export PATH=/home/vcap/app/node/bin:$PATH" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
