@@ -34,6 +34,28 @@ function copy_plugins_folder
   fi
 }
 
+
+function configure_on_premise
+{
+  IS_ONPREMISES="$(python -c 'from micro_config import getOnpremises; getOnpremises()')"
+
+  # Configure Edgemicro
+  echo "IS_ONPREMISES is $IS_ONPREMISES"
+
+  #CONFIG_OUT=""
+  if [ "$IS_ONPREMISES" == "true" ]; then
+    echo "configure private..."
+    PRIVATE_CONFIG="$(python -c 'from micro_config import getOnpremisesConfig; getOnpremisesConfig()')"
+    #echo "$BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro private configure $PRIVATE_CONFIG"
+  	CONFIG_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro private configure $PRIVATE_CONFIG)"
+  else
+    echo "configure cloud..."
+    CONFIG_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro configure $MICROCONFIG)"
+  fi
+  echo "$CONFIG_OUT"
+
+}
+
 ######## Main
 
 mkdir -p $BUILD_DIR/apigee_edge_micro
@@ -120,27 +142,10 @@ fi
 #npm install edgemicro@2.1.2 -g
 # /home/vcap/app/apigee_edge_micro/microgateway-2.1.2/cli
 INIT_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro init)"
-
-IS_ONPREMISES="$(python -c 'from micro_config import getOnpremises; getOnpremises()')"
-ENABLE_CUSTOM_PLUGINS="$(python -c 'from micro_config import getEnableCustomPlugins; getEnableCustomPlugins()')"
-
-# Configure Edgemicro
-echo "IS_ONPREMISES is $IS_ONPREMISES"
-echo "ENABLE_CUSTOM_PLUGINS is $ENABLE_CUSTOM_PLUGINS"
-
-CONFIG_OUT=""
-if [ "$IS_ONPREMISES" == "true" ]; then
-  echo "configure private..."
-  PRIVATE_CONFIG="$(python -c 'from micro_config import getOnpremisesConfig; getOnpremisesConfig()')"
-  #echo "$BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro private configure $PRIVATE_CONFIG"
-	CONFIG_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro private configure $PRIVATE_CONFIG)"
-else
-  echo "configure cloud..."
-  CONFIG_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro configure $MICROCONFIG)"
-fi
-
 echo "$INIT_OUT"
-echo "$CONFIG_OUT"
+
+#CONFIG_OUT=""
+configure_on_premise
 
 # the following commands move .edgemicro from .edgemicro to app/.edgemicro
 #mkdir -p $BUILD_DIR/.edgemicro
@@ -155,6 +160,8 @@ if [ "$YAML_INCLUDED" == "true" ]; then
   copy_plugins_folder
 fi
 
+ENABLE_CUSTOM_PLUGINS="$(python -c 'from micro_config import getEnableCustomPlugins; getEnableCustomPlugins()')"
+echo "ENABLE_CUSTOM_PLUGINS is $ENABLE_CUSTOM_PLUGINS"
 # custom plugins
 # use this feature when the YAML is NOT included.
 if [ "$ENABLE_CUSTOM_PLUGINS" == "true" ] && [ "$YAML_INCLUDED" == "false" ]; then
