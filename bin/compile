@@ -22,6 +22,15 @@ YAML_INCLUDED="$(python -c 'from micro_config import yamlIncluded; yamlIncluded(
 YAML_NAME="$(python -c 'from micro_config import yamlName; yamlName()')"
 
 ######## Functions
+function error_exit
+{
+  if [ "$1" = "0" ]; then
+    echo "$2"
+  else
+	    echo "$3"
+      exit 1
+  fi
+}
 
 function install_nodejs
 {
@@ -69,11 +78,9 @@ function copy_plugins_folder
   fi
 }
 
-
-function configure_on_premise
+function configure_edgemicro
 {
   IS_ONPREMISES="$(python -c 'from micro_config import getOnpremises; getOnpremises()')"
-
   # Configure Edgemicro
   echo "IS_ONPREMISES is $IS_ONPREMISES"
 
@@ -81,14 +88,13 @@ function configure_on_premise
   if [ "$IS_ONPREMISES" == "true" ]; then
     echo "configure private..."
     PRIVATE_CONFIG="$(python -c 'from micro_config import getOnpremisesConfig; getOnpremisesConfig()')"
-    #echo "$BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro private configure $PRIVATE_CONFIG"
-  	CONFIG_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro private configure $PRIVATE_CONFIG)"
+    CONFIG_OUT=$(edgemicro private configure $PRIVATE_CONFIG)
+    error_exit "$?" "edgemicro private configure executed successfully." "edgemicro private configure failed."
   else
     echo "configure cloud..."
-    CONFIG_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro configure $MICROCONFIG)"
+    CONFIG_OUT=$(edgemicro configure $MICROCONFIG)
+    error_exit "$?" "edgemicro configure executed successfully." "edgemicro configure failed."
   fi
-  echo "$CONFIG_OUT"
-
 }
 
 function enable_spike_arrest_and_quota
@@ -179,13 +185,14 @@ enable_spike_arrest_and_quota
 #ip route add 192.168.56.101 via 10.254.0.1
 
 #install via npm works
-#npm install edgemicro@2.1.2 -g
+npm install edgemicro@$EDGEMICRO_VERSION -g
+INIT_OUT=`edgemicro init`
 # /home/vcap/app/apigee_edge_micro/microgateway-2.1.2/cli
-INIT_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro init)"
+#INIT_OUT="$($BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro init)"
 echo "$INIT_OUT"
 
 #CONFIG_OUT=""
-configure_on_premise
+configure_edgemicro
 
 # the following commands move .edgemicro from .edgemicro to app/.edgemicro
 #mkdir -p $BUILD_DIR/.edgemicro
@@ -214,22 +221,21 @@ echo "export PATH=/home/vcap/app/node/bin:$PATH" >> $BUILD_DIR/.profile.d/zz_mic
 
 #Even though Edgemicro was installed via npm it is not available when the container starts so it must be installed again
 #echo "npm install edgemicro@2.1.2 -g" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
-echo "edgemicro start $ORGENV -k $MG_KEY -s $MG_SECRET"
 echo "export PORT=$EDGEMICRO_PORT" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
+echo "edgemicro start $ORGENV -k $MG_KEY -s $MG_SECRET"
 
 #echo "cd /home/vcap/app/apigee_edge_micro/microgateway-2.1.2" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
 #echo "npm install" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
-echo "/home/vcap/app/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro start $ORGENV -k $MG_KEY -s $MG_SECRET --port $EDGEMICRO_PORT &> /home/vcap/app/edgemicro_start.log &" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
 
+#echo "/home/vcap/app/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/cli/edgemicro start $ORGENV -k $MG_KEY -s $MG_SECRET --port $EDGEMICRO_PORT &> /home/vcap/app/edgemicro_start.log &" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
+echo "edgemicro start $ORGENV -k $MG_KEY -s $MG_SECRET --port $EDGEMICRO_PORT &> /home/vcap/app/edgemicro_start.log &" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
 echo "sleep 4" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
 echo "cat /home/vcap/app/edgemicro_start.log" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
 # Not sure if the CF is using this port - need to investigate
-echo "export PORT=8090" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
+#echo "export PORT=8090" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
 
 ## we could automate Edge tasks here...
-
 ## require binding to existing service broker ... --- service could communicate to Edge
 ## different plan...
-
 ## look for vcap services .. use service broker to config Edge-side requirements
 exit 0

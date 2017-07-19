@@ -29,6 +29,7 @@ Try the [README-SHORT.md](https://github.com/swilliams11/edgemicro-decorator/blo
       * [Update an Existing Service](#update-an-existing-service)
       * [Enable Spike Arrest](#enable-spike-arrest)
       * [Enable On-premises Deployment](#enable-on-premises-deployment)
+      * [Disable OAuth plugin](#disable-oauth-plugin)
       * [Enable Custom Plugins](#enable-custom-plugins)
       * [Enable Quota](#enable-quota)
       * [Select Node.js Version](#select-nodejs-version-1)
@@ -53,6 +54,39 @@ Please note the following:
 * Cloud Foundry creates an HTTP route to the app based on the Manifest.yml file located in the spring_hello App
 * Apps that use the HTTP route are required to listen on port 8080
 * This repo uses Edge Microgateway version 2.3.1
+
+## Updates
+* July 18, 2017
+The edgemicro-decorator installs `edgemicro` with `npm install edgemicro@VERSION -g`.  The version is supplied in the `edgemicro_version` property in the user defined service instance (i.e. `"edgemicro_version":"2.4.6"`). Now you can install any version of Edge Microgateway with the edgemicro-decorator.  However, we recommend that you use the most current version. (as of July 18, 2017 it is 2.4.6).
+
+If you attempt to install an invalid edgemicro version then you should receive an error similar to the one below; Cloud Foundry will not start the container.
+```
+npm ERR! Linux 4.2.0-42-generic
+npm ERR! argv "/tmp/app/node/bin/node" "/tmp/app/node/bin/npm" "install" "edgemicro@2.5.7" "-g"
+npm ERR! node v6.10.2
+npm ERR! npm  v3.10.10
+npm ERR! code ETARGET
+npm ERR! notarget No compatible version found: edgemicro@2.5.7
+npm ERR! notarget Valid install targets:
+npm ERR! notarget 3.0.4-early-access, 3.0.3-early-access, 3.0.1-early-access, 3.0.0-early-access, 2.4.6, 2.4.6-beta, 2.4.5-beta, 2.4.4-beta, 2.4.3-beta, 2.4.2-beta, 2.4.1-beta, 2.4.0-beta, 2.3.5, 2.3.3, 2.3.3-beta, 2.3.2-beta, 2.3.1, 2.3.0-beta, 2.2.5-beta, 2.2.4-beta, 2.2.3-beta, 2.2.2-beta, 2.1.2, 2.1.1, 2.1.0, 2.1.0-beta.2, 2.1.0-beta, 2.0.12, 2.0.11, 2.0.11-beta.3, 2.0.11-beta.2, 2.0.11-beta, 2.0.10, 2.0.9, 2.0.8, 2.0.7, 2.0.6, 2.0.5, 2.0.4, 2.0.0, 0.0.0
+npm ERR! notarget
+npm ERR! notarget This is most likely not a problem with npm itself.
+npm ERR! notarget In most cases you or one of your dependencies are requesting
+npm ERR! notarget a package version that doesn't exist.
+npm ERR! Please include the following file with any support request:
+npm ERR!     /home/vcap/npm-debug.log
+/tmp/buildpacks/a846680436e1e5886816e8118ca5c6d2/bin/compile: line 189: edgemicro: command not found
+IS_ONPREMISES is false
+configure cloud...
+/tmp/buildpacks/a846680436e1e5886816e8118ca5c6d2/bin/compile: line 95: edgemicro: command not found
+edgemicro configure failed.
+[meta-buildpack] Passing on exit code  1
+Failed to compile droplet
+Exit status 223
+Staging failed: Exited with status 223
+Destroying container
+Successfully destroyed container
+```
 
 ## What if I want some Cloud Foundry apps to be protected by Edge Microgateway and the other apps to be unprotected?
 If you don't bind an Cloud Foundry app to the `edgemicro_service`, then the edgemicro-decorator will not execute for that app.  
@@ -318,6 +352,7 @@ You must modify the service attributes below before you execute the `cf cups` co
 * [Update an Existing Service](#update-an-existing-service)
 * [Enable Spike Arrest](#enable-spike-arrest)
 * [Enable On-premises Deployment](#enable-on-premises-deployment)
+* [Disable OAuth plugin](#disable-oauth-plugin)
 * [Enable Custom Plugins](#enable-custom-plugins)
 * [Enable Quota](#enable-quota)
 * [Select Node.js Version](#select-nodejs-version-1)
@@ -457,6 +492,18 @@ RESPONSE:
 #### Testing Performed with local On-premises installation
 Follow the steps above to ensure that CF can access the IP of your local installation.
 
+### Disable OAuth Plugin
+The current approach to disable the OAuth plugin is by setting the following properties:
+* `enable_custom_plugins` is set to `true`
+* `plugins` is set `analytics`.
+
+Notice that `oauth` is **NOT** included in the `plugins` attribute.
+
+**Please note that disabling the OAuth plugin will allow all requests to your Edge Microgateway.**
+
+```
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"apigee_org", "env":"apigee_env", "user":"apigee_username","pass":"apigee_password", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "enable_custom_plugins":"true","plugins":"analytics", "tags": ["edgemicro"]}'
+```
 
 ### Enable Custom Plugins
 The following items must be completed for this to work correctly.
