@@ -88,6 +88,19 @@ Destroying container
 Successfully destroyed container
 ```
 
+## Can I create multiple edgemicro Cloud Foundry service instances within the same Cloud Foundry org and space bound to separate Cloud Foundry Apps?
+Yes.
+
+You can create two service instances within a Cloud Foundry org/space (the service names have to be unique). In my CF environment I created one service instance to connect to my private Apigee installation and second instance to connect to my public Apigee cloud instance.  Then I created a binding between `spring_hello` and `edgemicro_service` and another binding between `spring_hello_2` and `edgemicro_service_public`.  
+
+```
+name                       service         plan   bound apps       last operation
+edgemicro_service          user-provided          spring_hello
+edgemicro_service_public   user-provided          spring_hello_2
+```
+
+This effectively means that you can have dev, test, preprod and prod CF user-defined service instances within the same Cloud Foundry org and space.  You could also control one set of microgateway instances with API Key validation only and another set of microgateway instances with OAuth 2 token validation (JWTs).  
+
 ## What if I want some Cloud Foundry apps to be protected by Edge Microgateway and the other apps to be unprotected?
 If you don't bind an Cloud Foundry app to the `edgemicro_service`, then the edgemicro-decorator will not execute for that app.  
 
