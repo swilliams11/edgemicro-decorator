@@ -67,6 +67,25 @@ function install_nodejs
   chmod +x $BUILD_DIR/node/bin/*
 }
 
+#generic function to copy any folder from lib directory
+#1 - source folder
+#2 - destination folder
+function copy_folder
+{
+  if [ -d "$1" ]; then
+    cp -r $1 $2
+    echo "copied $1 folder to $2"
+  else
+    echo "$1 folder does not exist."
+  fi
+}
+
+#build_dir -> /home/vcap/app
+function copy_certs
+{
+  copy_folder "$ROOT_DIR/lib/certs" "$BUILD_DIR/certs"
+}
+
 # copy the plugins folder only if it exists.
 function copy_plugins_folder
 {
@@ -200,6 +219,7 @@ configure_edgemicro
 
 configure_yaml_file
 configure_custom_plugins
+copy_certs
 
 # the following commands move .edgemicro from .edgemicro to app/.edgemicro
 mkdir -p $BUILD_DIR/.edgemicro

@@ -56,6 +56,9 @@ Please note the following:
 * This repo uses Edge Microgateway version 2.3.1
 
 ## Updates
+* July 20, 2017
+Edgemicro now allow you to pass in SSL certificates to configure Microgateway with TLS connections.  See our docs on [configuring SSL on the Microgateway](http://docs.apigee.com/microgateway/latest/operation-and-configuration-reference-edge-microgateway#configuringsslontheedgemicrogatewayserver).
+
 * July 18, 2017
 The edgemicro-decorator installs `edgemicro` with `npm install edgemicro@VERSION -g`.  The version is supplied in the `edgemicro_version` property in the user defined service instance (i.e. `"edgemicro_version":"2.4.6"`). Now you can install any version of Edge Microgateway with the edgemicro-decorator.  However, we recommend that you use the most current version. (as of July 18, 2017 it is 2.4.6).
 
@@ -87,6 +90,28 @@ Staging failed: Exited with status 223
 Destroying container
 Successfully destroyed container
 ```
+## Can I configure TLS in the Microgateway?
+Yes, but it is not necessary.  Why? Because Cloud Foundry handles and terminates TLS for you, so there is no need to include TLS on the Northbound side.  It not needed southbound either because Edge Microgateway will connect to your Cloud Foundry target app via localhost:port.  So why would you need TLS for that?  Furthermore, even if you wanted TLS to Edge Microgateway northbound, I think it would require an additional setting in Cloud Foundry to make that work. 
+
+I made the changes to the code and the steps to enable it are shown below.
+
+You have to complete the following for this to work:
+1. Create a [YAML](#include-a-org-env-configyaml-file) and configure it as outline in our SSL docs.
+2. Copy the YAML file into the `edgemicro-decorator`s `lib` directory.
+3. Add the public and private keys to the `lib/certs` directory in the `edgemicro-decorator`
+
+The SSL config should look similar to the one below to enable SSL on northbound connections to the Microgateway.
+
+**Please note that the certs are copied to the /home/vcap/app/certs directory.  So you must include that path in your org-env-config.yaml file.**
+```
+edgemicro:
+     ssl:
+         key: /home/vcap/app/certs/server.key
+         cert: /home/vcap/app/certs/server.cert
+	       rejectUnauthorized: false #option added in v2.2.2
+```
+
+I don't think you want to setup SSL to the microgateway since CF handles that for you.  
 
 ## Can I create multiple edgemicro Cloud Foundry service instances within the same Cloud Foundry org and space bound to separate Cloud Foundry Apps?
 Yes.
