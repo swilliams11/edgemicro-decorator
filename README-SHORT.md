@@ -29,15 +29,15 @@ Email>     admin
 Password>  admin
 ```
 
-3. Clone meta-buildpack decorator and upload it to PCF Dev.
+3. Clone meta-buildpack decorator into your Github directory and upload it to PCF Dev.
 ```
-git clone git@github.com:cf-platform-eng/meta-buildpack.git
+git clone https://github.com/cf-platform-eng/meta-buildpack.git
 cd meta-buildpack
 ./build
 ./upload
 ```
 
-4. Clone the edgemicro-decorator and upload it to PCF Dev.
+4. Clone the edgemicro-decorator into your Github directory and upload it to PCF Dev.
 Please note that this repo will eventually be moved to /apigee/edgemicro-decorator location.
 
 ```
