@@ -10,8 +10,8 @@ This is the short version of the edgemicro-decorator documentation.
 
   These steps are detailed [here](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#Part2).
 
-  The only difference is that your `Proxy Base Path` will be `/edgemicro_hello` and
-  your `Existing API` will be http://localhost:8090.
+  The only difference is that your when you create your proxy in the Edge UI make sure to set the `Proxy Base Path` will be `/edgemicro_hello` and
+  your `Existing API` (target server) will be http://localhost:8090.
 
 2. Install and start [PCF Dev](https://pivotal.io/platform/pcf-tutorials/getting-started-with-pivotal-cloud-foundry-dev/introduction).
 
@@ -85,11 +85,17 @@ cf push --no-start -m 512M
 cf enable-diego spring_hello
 ```
 
-6. Create the Edge Microgateway User Defined Service Instance with the following command.
+6. Create the Edge Microgateway User Defined Service Instance with the following command in Cloud Foundry.
 However, you must update all the fields with CHANGEME.
 
+If you are using an on-premise installation of Edge then use the service instance below.
 ```
 cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"CHANGEME", "env":"CHANGEME", "user":"CHANGEME","pass":"CHANGEME", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "onpremises": "true", "onprem_config" : {"runtime_url": "http://CHANGEME:9001", "mgmt_url" : "http://CHANGEME:8080", "virtual_host" : "default"}, "tags": ["edgemicro"]}'
+```
+
+If you are using an Apigee SaaS organization then use the following service instance.
+```
+cf cups edgemicro_service -p '{"application_name":"edgemicro_service", "org":"CHANGEME", "env":"CHANGEME", "user":"CHANGEME","pass":"CHANGEME", "nodejs_version_number": "6.10.2", "edgemicro_version":"2.3.1", "edgemicro_port":"8080", "tags": ["edgemicro"]}'
 ```
 
 Bind the service to the Cloud Foundry App
