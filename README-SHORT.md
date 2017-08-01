@@ -29,6 +29,12 @@ Email>     admin
 Password>  admin
 ```
 
+Select the following Cloud Foundry org and space.
+```
+pcfdev-org
+pcfdev-space
+```
+
 3. Clone meta-buildpack decorator into your Github directory and upload it to PCF Dev.
 ```
 git clone https://github.com/cf-platform-eng/meta-buildpack.git
