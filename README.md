@@ -91,7 +91,7 @@ Destroying container
 Successfully destroyed container
 ```
 ## Can I configure TLS in the Microgateway?
-Yes, but it is not necessary.  Why? Because Cloud Foundry handles and terminates TLS for you, so there is no need to include TLS on the Northbound side.  It not needed southbound either because Edge Microgateway will connect to your Cloud Foundry target app via localhost:port.  So why would you need TLS for that?  Furthermore, even if you wanted TLS to Edge Microgateway northbound, I think it would require an additional setting in Cloud Foundry to make that work. 
+Yes, but it is not necessary.  Why? Because Cloud Foundry handles and terminates TLS for you, so there is no need to include TLS on the Northbound side.  It not needed southbound either because Edge Microgateway will connect to your Cloud Foundry target app via localhost:port.  So why would you need TLS for that?  Furthermore, even if you wanted TLS to Edge Microgateway northbound, I think it would require an additional setting in Cloud Foundry to make that work.
 
 I made the changes to the code and the steps to enable it are shown below.
 
