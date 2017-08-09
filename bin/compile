@@ -71,10 +71,11 @@ function install_nodejs
 function copy_plugins_folder
 {
   if [ -d "$ROOT_DIR/lib/plugins" ]; then
-    cp -r $ROOT_DIR/lib/plugins $BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/
-    echo "copied plugins folder from $ROOT_DIR/lib to $BUILD_DIR/apigee_edge_micro/microgateway-$EDGEMICRO_VERSION/"
+    #build_dir => /home/vcap/app
+    cp -r $ROOT_DIR/lib/plugins $BUILD_DIR/node/lib/node_modules/edgemicro/
+    echo "copied plugins folder from $ROOT_DIR/lib to $BUILD_DIR/node/lib/node_modules/edgemicro/plugins/"
   else
-    echo "plugins folder does not exist in /lib directory."
+    echo "plugins folder does not exist in edgemicro-decorator /lib directory."
   fi
 }
 
@@ -211,18 +212,12 @@ echo "$MG_KEY" > $BUILD_DIR/key.txt
 MG_SECRET=$(sed -n 's/secret: \(.*\)/\1 /p' <<< "$CONFIG_OUT")
 echo "$MG_SECRET" > $BUILD_DIR/secret.txt
 
-## retrieve app name for start command
-LOCAL_APP="$(python -c 'from micro_config import getAppName; getAppName()')"
-LOCAL_PATH="/"
-LOCAL_TARGET="http://localhost:8999"
-
-echo "$ORGENV"
 echo "export PATH=/home/vcap/app/node/bin:$PATH" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
 
 #Even though Edgemicro was installed via npm it is not available when the container starts so it must be installed again
 #echo "npm install edgemicro@2.1.2 -g" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
 echo "export PORT=$EDGEMICRO_PORT" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
-echo "edgemicro start $ORGENV -k $MG_KEY -s $MG_SECRET"
+echo "starting edgemicro..."
 
 #echo "cd /home/vcap/app/apigee_edge_micro/microgateway-2.1.2" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
 #echo "npm install" >> $BUILD_DIR/.profile.d/zz_micro_config.sh
