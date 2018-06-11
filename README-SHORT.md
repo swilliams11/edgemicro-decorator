@@ -3,7 +3,7 @@ This is the short version of the edgemicro-decorator documentation.
 
 ** Please note that the edgemicro-decorator will execute only if you bind the Cloud Foundry app to the `edgemicro_service`.**
 
-1. You must have access to Edge. And you must complete the following.
+1. You must have access to Edge and you must complete the following.
   * Create an edgemicro aware proxy.
   * Create an Apigee product.
   * Create an Apigee App.
