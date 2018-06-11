@@ -4,13 +4,13 @@ This is the short version of the edgemicro-decorator documentation.
 ** Please note that the edgemicro-decorator will execute only if you bind the Cloud Foundry app to the `edgemicro_service`.**
 
 1. You must have access to Edge. And you must complete the following.
-  a) Create an edgemicro aware proxy.
-  b) Create an Apigee product.
-  c) Create an Apigee App.
+  * Create an edgemicro aware proxy.
+  * Create an Apigee product.
+  * Create an Apigee App.
 
   These steps are detailed [here](http://docs.apigee.com/microgateway/latest/setting-and-configuring-edge-microgateway#Part2).
 
-  The only difference is that your when you create your proxy in the Edge UI make sure to set the `Proxy Base Path` will be `/edgemicro_hello` and
+  The only difference is that when you create your proxy in the Edge UI make sure to set the `Proxy Base Path` to `/edgemicro_hello` and
   your `Existing API` (target server) will be http://localhost:8090.
 
 2. Install and start [PCF Dev](https://pivotal.io/platform/pcf-tutorials/getting-started-with-pivotal-cloud-foundry-dev/introduction).
