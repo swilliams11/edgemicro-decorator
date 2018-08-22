@@ -4,6 +4,7 @@
 
 ## Official Edge Microgateway Decorator
 The Edge Microgateway Decorator is now included in the Apigee Service Broker as the coresident plan. Please use this link instead.
+https://docs.apigee.com/api-platform/integrations/cloud-foundry/proxying-cloud-foundry-app-microgateway-coresident-plan
 
 This is the short version of the edgemicro-decorator documentation.
 
