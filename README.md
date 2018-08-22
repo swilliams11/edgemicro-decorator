@@ -1,5 +1,11 @@
 # Apigee Edge Microgateway Decorator
 
+## This is not an official Google product
+
+## Official Edge Microgateway Decorator
+The Edge Microgateway Decorator is now included in the Apigee Service Broker as the coresident plan. Please use this link instead.
+https://docs.apigee.com/api-platform/integrations/cloud-foundry/proxying-cloud-foundry-app-microgateway-coresident-plan
+
 This is a [decorator](https://github.com/guidowb/meta-buildpack/blob/master/README.md#decorators) buildpack for Cloud Foundry that supports integration with Edge on-premises/public cloud via the Edge Microgateway.
 
 When this decorator and the [meta-buildpack](https://github.com/guidowb/meta-buildpack)

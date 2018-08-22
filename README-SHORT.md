@@ -1,4 +1,10 @@
 # edgemicro-decorator short version
+
+## This is not an official Google product
+
+## Official Edge Microgateway Decorator
+The Edge Microgateway Decorator is now included in the Apigee Service Broker as the coresident plan. Please use this link instead.
+
 This is the short version of the edgemicro-decorator documentation.
 
 ** Please note that the edgemicro-decorator will execute only if you bind the Cloud Foundry app to the `edgemicro_service`.**
